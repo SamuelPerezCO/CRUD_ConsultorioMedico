@@ -36,14 +36,30 @@ pacientes = [
     {"DNI": "123456", "Nombre Completo": "Juan Pérez", "Teléfono": "555-1234", "Correo Electrónico": "juan@example.com"}
 ]
 
+# Lista de citas simulada
+citas = [
+    {"Hora": "10:00 AM", "Paciente": "Juan Pérez", "Motivo": "Consulta general"},
+    {"Hora": "11:30 AM", "Paciente": "María Gómez", "Motivo": "Chequeo anual"},
+    {"Hora": "02:00 PM", "Paciente": "Carlos López", "Motivo": "Dolor de cabeza"}
+]
+
 # Mensaje inicial
 def mostrar_mensaje_inicial():
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
-    mensaje_bienvenido = ctk.CTkLabel(frame_derecha, text="¡Bienvenido!\n¿Qué desea hacer?",
-                                      font=("Arial", 20, "bold"), justify="center")
-    mensaje_bienvenido.grid(row=0, column=0, padx=20, pady=20)
+    titulo_citas = ctk.CTkLabel(frame_derecha, text="Citas de Hoy", font=("Arial", 20, "bold"))
+    titulo_citas.grid(row=0, column=0, columnspan=3, pady=10)
+
+    for idx, cita in enumerate(citas):
+        label_hora = ctk.CTkLabel(frame_derecha, text=f"Hora: {cita['Hora']}", font=("Arial", 14))
+        label_hora.grid(row=idx+1, column=0, sticky="w", padx=10, pady=5)
+
+        label_paciente = ctk.CTkLabel(frame_derecha, text=f"Paciente: {cita['Paciente']}", font=("Arial", 14))
+        label_paciente.grid(row=idx+1, column=1, sticky="w", padx=10, pady=5)
+
+        label_motivo = ctk.CTkLabel(frame_derecha, text=f"Motivo: {cita['Motivo']}", font=("Arial", 14))
+        label_motivo.grid(row=idx+1, column=2, sticky="w", padx=10, pady=5)
 
 mostrar_mensaje_inicial()
 
