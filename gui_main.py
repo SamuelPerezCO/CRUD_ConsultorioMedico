@@ -18,12 +18,27 @@ app.grid_columnconfigure(1, weight=4)
 # Crear marco izquierdo para los botones
 frame_izquierdo = ctk.CTkFrame(app)
 frame_izquierdo.grid(row=0, column=0, sticky="nswe")
-frame_izquierdo.grid_rowconfigure((0, 1, 2), weight=1)
+frame_izquierdo.grid_rowconfigure((0, 1, 2, 3, 4), weight=1)  # Ajustar filas
 frame_izquierdo.grid_columnconfigure(0, weight=1)
 
 # Título en el marco izquierdo
 titulo = ctk.CTkLabel(frame_izquierdo, text="Consultorio", font=("Arial", 16, "bold"))
-titulo.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+titulo.grid(row=0, column=0, padx=10, pady=(20, 10), sticky="n")
+
+# Botones en el menú izquierdo (organizados ergonómicamente)
+btn_crear = ctk.CTkButton(frame_izquierdo, text="Crear paciente", font=("Arial", 14),
+                          width=170, height=50, corner_radius=15, command=lambda: mostrar_formulario())
+btn_crear.grid(row=1, column=0, padx=10, pady=20, sticky="n")
+
+btn_buscar = ctk.CTkButton(frame_izquierdo, text="Buscar paciente", font=("Arial", 14),
+                           width=170, height=50, corner_radius=15, command=lambda: mostrar_buscar_paciente())
+btn_buscar.grid(row=2, column=0, padx=10, pady=20, sticky="n")
+
+btn_crear_cita = ctk.CTkButton(frame_izquierdo, text="Crear Cita", font=("Arial", 14),
+                               width=170, height=50, corner_radius=15)
+btn_crear_cita.grid(row=3, column=0, padx=10, pady=20, sticky="n")
+
+frame_izquierdo.grid_rowconfigure(4, weight=2)  # Espacio adicional para balancear
 
 # Marco para la sección derecha
 frame_derecha = ctk.CTkFrame(app, fg_color="transparent")
@@ -48,18 +63,36 @@ def mostrar_mensaje_inicial():
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
+    frame_derecha.grid_rowconfigure(0, weight=0)  # Encabezado fijo
+    frame_derecha.grid_rowconfigure(1, weight=1)  # Espacio para la tabla
+    frame_derecha.grid_columnconfigure(0, weight=1)
+
+    # Encabezado principal
     titulo_citas = ctk.CTkLabel(frame_derecha, text="Citas de Hoy", font=("Arial", 20, "bold"))
-    titulo_citas.grid(row=0, column=0, columnspan=3, pady=10)
+    titulo_citas.grid(row=0, column=0, pady=(10, 20))  # Espaciado abajo
 
-    for idx, cita in enumerate(citas):
-        label_hora = ctk.CTkLabel(frame_derecha, text=f"Hora: {cita['Hora']}", font=("Arial", 14))
-        label_hora.grid(row=idx+1, column=0, sticky="w", padx=10, pady=5)
+    # Crear marco desplazable para la tabla
+    scroll_frame = ctk.CTkScrollableFrame(frame_derecha)
+    scroll_frame.grid(row=1, column=0, sticky="nswe", padx=20, pady=10)
+    scroll_frame.grid_columnconfigure((0, 1, 2), weight=1)  # Ajustar columnas
 
-        label_paciente = ctk.CTkLabel(frame_derecha, text=f"Paciente: {cita['Paciente']}", font=("Arial", 14))
-        label_paciente.grid(row=idx+1, column=1, sticky="w", padx=10, pady=5)
+    # Encabezados de la tabla
+    encabezados = ["Hora", "Paciente", "Motivo"]
+    for idx, encabezado in enumerate(encabezados):
+        label_encabezado = ctk.CTkLabel(scroll_frame, text=encabezado, font=("Arial", 14, "bold"))
+        label_encabezado.grid(row=0, column=idx, padx=10, pady=10, sticky="nsew")
 
-        label_motivo = ctk.CTkLabel(frame_derecha, text=f"Motivo: {cita['Motivo']}", font=("Arial", 14))
-        label_motivo.grid(row=idx+1, column=2, sticky="w", padx=10, pady=5)
+    # Filas de la tabla
+    for row_idx, cita in enumerate(citas, start=1):
+        label_hora = ctk.CTkLabel(scroll_frame, text=cita["Hora"], font=("Arial", 12))
+        label_hora.grid(row=row_idx, column=0, padx=10, pady=5, sticky="nsew")
+
+        label_paciente = ctk.CTkLabel(scroll_frame, text=cita["Paciente"], font=("Arial", 12))
+        label_paciente.grid(row=row_idx, column=1, padx=10, pady=5, sticky="nsew")
+
+        label_motivo = ctk.CTkLabel(scroll_frame, text=cita["Motivo"], font=("Arial", 12))
+        label_motivo.grid(row=row_idx, column=2, padx=10, pady=5, sticky="nsew")
+
 
 mostrar_mensaje_inicial()
 
@@ -182,18 +215,6 @@ def mostrar_formulario():
 
     frame_derecha.grid_columnconfigure(1, weight=1)
 
-# Botones en el menú izquierdo
-btn_crear = ctk.CTkButton(frame_izquierdo, text="Crear paciente", font=("Arial", 14),
-                          width=170, height=50, corner_radius=15, command=mostrar_formulario)
-btn_crear.grid(row=1, column=0, padx=10, pady=20)
-
-btn_buscar = ctk.CTkButton(frame_izquierdo, text="Buscar paciente", font=("Arial", 14),
-                           width=170, height=50, corner_radius=15, command=mostrar_buscar_paciente)
-btn_buscar.grid(row=2, column=0, padx=10, pady=20)
-
-btn_crear_cita = ctk.CTkButton(frame_izquierdo , text="Crear Cita", font=("Arial" , 14),
-                                width=170, height=50, corner_radius=15)
-btn_crear_cita.grid(row=3 , column=0 , padx=10 , pady = 20)
 
 # Ejecutar la aplicación
 app.mainloop()
