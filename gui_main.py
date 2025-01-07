@@ -209,7 +209,7 @@ def mostrar_informacion_paciente(paciente):
     btn_editar = ctk.CTkButton(frame_derecha, text="Editar", command=lambda: print("Editar paciente"))
     btn_editar.grid(row=len(paciente)+1, column=0, pady=20)
 
-    btn_cita = ctk.CTkButton(frame_derecha, text="Crear Cita", command=lambda: print("Crear cita"))
+    btn_cita = ctk.CTkButton(frame_derecha, text="Crear Cita", command=lambda: mostrar_crear_cita())
     btn_cita.grid(row=len(paciente)+1, column=1, pady=20)
 
     btn_historia = ctk.CTkButton(frame_derecha, text="Generar Historia Clínica", command=lambda: print("Generar historia clínica"))
