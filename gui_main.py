@@ -31,6 +31,11 @@ frame_derecha.grid(row=0, column=1, sticky="nswe")
 frame_derecha.grid_rowconfigure(0, weight=1)
 frame_derecha.grid_columnconfigure(0, weight=1)
 
+# Lista de pacientes simulada
+pacientes = [
+    {"DNI": "123456", "Nombre Completo": "Juan Pérez", "Teléfono": "555-1234", "Correo Electrónico": "juan@example.com"}
+]
+
 # Mensaje inicial
 def mostrar_mensaje_inicial():
     for widget in frame_derecha.winfo_children():
@@ -42,12 +47,74 @@ def mostrar_mensaje_inicial():
 
 mostrar_mensaje_inicial()
 
-# Función para mostrar el formulario de paciente
+# Función para mostrar el formulario de búsqueda (centrado)
+def mostrar_buscar_paciente():
+    for widget in frame_derecha.winfo_children():
+        widget.destroy()
+
+    # Configurar centrado
+    frame_derecha.grid_rowconfigure((0, 1, 2, 3, 4), weight=1)
+    frame_derecha.grid_columnconfigure((0, 1), weight=1)
+
+    # Título de búsqueda
+    titulo_busqueda = ctk.CTkLabel(frame_derecha, text="Buscar Paciente", font=("Arial", 20, "bold"))
+    titulo_busqueda.grid(row=1, column=0, columnspan=2, pady=10)
+
+    # Campo para el DNI
+    label_dni = ctk.CTkLabel(frame_derecha, text="DNI:", anchor="w", font=("Arial", 14))
+    label_dni.grid(row=2, column=0, sticky="e", padx=10)
+
+    entry_dni = ctk.CTkEntry(frame_derecha)
+    entry_dni.grid(row=2, column=1, sticky="w", padx=10)
+
+    def buscar_paciente():
+        dni = entry_dni.get().strip()
+        paciente = next((p for p in pacientes if p["DNI"] == dni), None)
+        if paciente:
+            mostrar_informacion_paciente(paciente)
+        else:
+            mensaje_error = ctk.CTkLabel(frame_derecha, text="Paciente no encontrado", font=("Arial", 14), fg_color="red")
+            mensaje_error.grid(row=4, column=0, columnspan=2, pady=20)
+
+    # Botón de búsqueda
+    btn_buscar = ctk.CTkButton(frame_derecha, text="Buscar", command=buscar_paciente)
+    btn_buscar.grid(row=3, column=0, columnspan=2, pady=10)
+
+# Función para mostrar la información del paciente
+def mostrar_informacion_paciente(paciente):
+    for widget in frame_derecha.winfo_children():
+        widget.destroy()
+
+    # Título de la información
+    titulo_info = ctk.CTkLabel(frame_derecha, text="Información del Paciente", font=("Arial", 20, "bold"))
+    titulo_info.grid(row=0, column=0, columnspan=2, pady=10)
+
+    # Mostrar los datos del paciente
+    for idx, (campo, valor) in enumerate(paciente.items()):
+        label_campo = ctk.CTkLabel(frame_derecha, text=f"{campo}:", font=("Arial", 14, "bold"), anchor="w")
+        label_campo.grid(row=idx+1, column=0, sticky="w", padx=10, pady=5)
+
+        valor_campo = ctk.CTkLabel(frame_derecha, text=valor, font=("Arial", 14), anchor="w")
+        valor_campo.grid(row=idx+1, column=1, sticky="w", padx=10, pady=5)
+
+    # Botones adicionales
+    btn_editar = ctk.CTkButton(frame_derecha, text="Editar", command=lambda: print("Editar paciente"))
+    btn_editar.grid(row=len(paciente)+1, column=0, pady=20)
+
+    btn_cita = ctk.CTkButton(frame_derecha, text="Crear Cita", command=lambda: print("Crear cita"))
+    btn_cita.grid(row=len(paciente)+1, column=1, pady=20)
+
+    btn_historia = ctk.CTkButton(frame_derecha, text="Generar Historia Clínica", command=lambda: print("Generar historia clínica"))
+    btn_historia.grid(row=len(paciente)+2, column=0, columnspan=2, pady=10)
+
+    frame_derecha.grid_columnconfigure(1, weight=1)
+
+# Función para mostrar el formulario de crear paciente (sin cambios)
 def mostrar_formulario():
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
-    titulo_form = ctk.CTkLabel(frame_derecha, text="Registro de Paciente", font=("Arial", 20, "bold"))
+    titulo_form = ctk.CTkLabel(frame_derecha, text="Crear Paciente", font=("Arial", 20, "bold"))
     titulo_form.grid(row=0, column=0, columnspan=2, pady=10)
 
     campos = [
@@ -62,7 +129,7 @@ def mostrar_formulario():
         "Alergias",
         "Condiciones Médicas Preexistentes",
         "Medicamentos Actuales",
-        "Contacto de Emergencia",
+        "Nombre Contacto de Emergencia",
         "Teléfono de Emergencia",
         "Relación con el Paciente"
     ]
@@ -91,6 +158,7 @@ def mostrar_formulario():
 
     def guardar_paciente():
         datos_paciente = {campo: entrada.get() if not isinstance(entrada, ctk.StringVar) else entrada.get() for campo, entrada in entries.items()}
+        pacientes.append(datos_paciente)
         mostrar_informacion_paciente(datos_paciente)
 
     btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar", command=guardar_paciente)
@@ -98,55 +166,18 @@ def mostrar_formulario():
 
     frame_derecha.grid_columnconfigure(1, weight=1)
 
-# Función para mostrar la información del paciente
-def mostrar_informacion_paciente(datos_paciente):
-    for widget in frame_derecha.winfo_children():
-        widget.destroy()
-
-    titulo_info = ctk.CTkLabel(frame_derecha, text="Información del Paciente", font=("Arial", 20, "bold"))
-    titulo_info.grid(row=0, column=0, columnspan=2, pady=10)
-
-    for idx, (campo, valor) in enumerate(datos_paciente.items()):
-        label_campo = ctk.CTkLabel(frame_derecha, text=f"{campo}: ", font=("Arial", 14, "bold"))
-        label_campo.grid(row=idx+1, column=0, sticky="w", padx=10, pady=5)
-
-        valor_campo = ctk.CTkLabel(frame_derecha, text=valor, font=("Arial", 14))
-        valor_campo.grid(row=idx+1, column=1, sticky="w", padx=10, pady=5)
-
-    def generar_historia_clinica():
-        mostrar_historia_clinica(datos_paciente["Nombre Completo"])
-
-    btn_historia = ctk.CTkButton(frame_derecha, text="Generar Historia Clínica", command=generar_historia_clinica)
-    btn_historia.grid(row=len(datos_paciente)+1, column=0, columnspan=2, pady=20)
-
-# Función para mostrar el formulario de la historia clínica
-def mostrar_historia_clinica(nombre_paciente):
-    for widget in frame_derecha.winfo_children():
-        widget.destroy()
-
-    titulo_historia = ctk.CTkLabel(frame_derecha, text=f"Historia Clínica: {nombre_paciente}", font=("Arial", 20, "bold"))
-    titulo_historia.grid(row=0, column=0, columnspan=2, pady=10)
-
-    cuadro_diagnostico = ctk.CTkTextbox(frame_derecha, width=500, height=300)
-    cuadro_diagnostico.grid(row=1, column=0, columnspan=2, pady=20, padx=10)
-
-    def guardar_historia():
-        diagnostico = cuadro_diagnostico.get("1.0", "end").strip()
-        print(f"Diagnóstico para {nombre_paciente}: {diagnostico}")
-        mostrar_mensaje_inicial()
-
-    btn_guardar_diagnostico = ctk.CTkButton(frame_derecha, text="Guardar Diagnóstico", command=guardar_historia)
-    btn_guardar_diagnostico.grid(row=2, column=0, columnspan=2, pady=20)
-
-# Asignar la función al botón "Crear paciente"
+# Botones en el menú izquierdo
 btn_crear = ctk.CTkButton(frame_izquierdo, text="Crear paciente", font=("Arial", 14),
                           width=170, height=50, corner_radius=15, command=mostrar_formulario)
 btn_crear.grid(row=1, column=0, padx=10, pady=20)
 
-# Botón para buscar paciente (sin funcionalidad por ahora)
 btn_buscar = ctk.CTkButton(frame_izquierdo, text="Buscar paciente", font=("Arial", 14),
-                           width=170, height=50, corner_radius=15)
+                           width=170, height=50, corner_radius=15, command=mostrar_buscar_paciente)
 btn_buscar.grid(row=2, column=0, padx=10, pady=20)
+
+btn_crear_cita = ctk.CTkButton(frame_izquierdo , text="Crear Cita", font=("Arial" , 14),
+                                width=170, height=50, corner_radius=15)
+btn_crear_cita.grid(row=3 , column=0 , padx=10 , pady = 20)
 
 # Ejecutar la aplicación
 app.mainloop()
