@@ -94,36 +94,44 @@ def mostrar_historia_clinica(paciente):
             widget.destroy()
 
         # Título del formulario
-        titulo_form = ctk.CTkLabel(frame_derecha, text=f"Agregar Registro - {paciente['Nombre Completo']}", font=("Arial", 20, "bold"))
+        titulo_form = ctk.CTkLabel(frame_derecha, text=f"Agregar Registro - {paciente['Nombre Completo']}", font=("Arial", 22, "bold"))
         titulo_form.grid(row=0, column=0, columnspan=2, pady=20)
 
         # Campos del formulario
-        campos_registro = ["Fecha (DD/MM/AAAA)", "Motivo", "Diagnóstico", "Tratamiento"]
+        campos_registro = ["Fecha (DD/MM/AAAA)", "Motivo", "Diagnóstico"]
         entries = {}
 
         for idx, campo in enumerate(campos_registro):
-            label = ctk.CTkLabel(frame_derecha, text=campo + ":", anchor="w", font=("Arial", 14))
-            label.grid(row=idx+1, column=0, sticky="e", padx=20, pady=10)
+            label = ctk.CTkLabel(frame_derecha, text=campo + ":", anchor="w", font=("Arial", 16))
+            label.grid(row=idx + 1, column=0, sticky="e", padx=20, pady=10)
 
-            entry = ctk.CTkEntry(frame_derecha)
-            entry.grid(row=idx+1, column=1, sticky="w", padx=20, pady=10)
+            entry = ctk.CTkEntry(frame_derecha, font=("Arial", 14), width=300)
+            entry.grid(row=idx + 1, column=1, sticky="w", padx=20, pady=10)
             entries[campo] = entry
+
+        # Área de texto para "Tratamiento"
+        label_tratamiento = ctk.CTkLabel(frame_derecha, text="Tratamiento:", anchor="w", font=("Arial", 16))
+        label_tratamiento.grid(row=len(campos_registro) + 1, column=0, sticky="ne", padx=20, pady=10)
+
+        text_tratamiento = ctk.CTkTextbox(frame_derecha, font=("Arial", 14), height=120, width=300, wrap="word")
+        text_tratamiento.grid(row=len(campos_registro) + 1, column=1, sticky="w", padx=20, pady=10)
 
         # Guardar el registro en el historial
         def guardar_registro():
             nuevo_registro = {campo: entrada.get() for campo, entrada in entries.items()}
+            nuevo_registro["Tratamiento"] = text_tratamiento.get("1.0", "end-1c")  # Obtener texto completo del área
             if "Historia Clínica" not in paciente:
                 paciente["Historia Clínica"] = []
             paciente["Historia Clínica"].append(nuevo_registro)
             mostrar_historia_clinica(paciente)
 
         # Botón para guardar
-        btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Registro", command=guardar_registro)
-        btn_guardar.grid(row=len(campos_registro)+1, column=0, columnspan=2, pady=20)
+        btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Registro", font=("Arial", 14), command=guardar_registro)
+        btn_guardar.grid(row=len(campos_registro) + 2, column=0, columnspan=2, pady=20)
 
         # Botón para volver a la historia clínica
-        btn_volver = ctk.CTkButton(frame_derecha, text="Volver", command=lambda: mostrar_historia_clinica(paciente))
-        btn_volver.grid(row=len(campos_registro)+2, column=0, columnspan=2, pady=10)
+        btn_volver = ctk.CTkButton(frame_derecha, text="Volver", font=("Arial", 14), command=lambda: mostrar_historia_clinica(paciente))
+        btn_volver.grid(row=len(campos_registro) + 3, column=0, columnspan=2, pady=10)
 
     # Botón para agregar registro
     btn_agregar = ctk.CTkButton(frame_derecha, text="Agregar Registro", command=agregar_registro)
