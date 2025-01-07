@@ -25,6 +25,7 @@ frame_izquierdo.grid_columnconfigure(0, weight=1)
 titulo = ctk.CTkLabel(frame_izquierdo, text="Consultorio", font=("Arial", 16, "bold"))
 titulo.grid(row=0, column=0, padx=10, pady=(20, 10), sticky="n")
 
+
 # Botones en el menú izquierdo (organizados ergonómicamente)
 btn_crear = ctk.CTkButton(frame_izquierdo, text="Crear paciente", font=("Arial", 14),
                           width=170, height=50, corner_radius=15, command=lambda: mostrar_formulario())
@@ -35,7 +36,7 @@ btn_buscar = ctk.CTkButton(frame_izquierdo, text="Buscar paciente", font=("Arial
 btn_buscar.grid(row=2, column=0, padx=10, pady=20, sticky="n")
 
 btn_crear_cita = ctk.CTkButton(frame_izquierdo, text="Crear Cita", font=("Arial", 14),
-                               width=170, height=50, corner_radius=15)
+                               width=170, height=50, corner_radius=15 , command=lambda: mostrar_crear_cita())
 btn_crear_cita.grid(row=3, column=0, padx=10, pady=20, sticky="n")
 
 frame_izquierdo.grid_rowconfigure(4, weight=2)  # Espacio adicional para balancear
@@ -95,6 +96,64 @@ def mostrar_mensaje_inicial():
 
 
 mostrar_mensaje_inicial()
+
+def mostrar_crear_cita():
+    for widget in frame_derecha.winfo_children():
+        widget.destroy()
+
+    # Configurar diseño
+    frame_derecha.grid_rowconfigure((0, 1, 2, 3, 4, 5), weight=1)
+    frame_derecha.grid_columnconfigure((0, 1), weight=1)
+
+    # Título
+    titulo_form = ctk.CTkLabel(frame_derecha, text="Crear Cita", font=("Arial", 20, "bold"))
+    titulo_form.grid(row=0, column=0, columnspan=2, pady=20)
+
+    # Campos del formulario
+    # Seleccionar Paciente
+    label_paciente = ctk.CTkLabel(frame_derecha, text="Paciente:", font=("Arial", 14), anchor="w")
+    label_paciente.grid(row=1, column=0, padx=20, pady=10, sticky="e")
+
+    pacientes_var = ctk.StringVar(value="Seleccionar paciente")
+    pacientes_nombres = [p["Nombre Completo"] for p in pacientes]
+    menu_pacientes = ctk.CTkOptionMenu(frame_derecha, values=pacientes_nombres, variable=pacientes_var)
+    menu_pacientes.grid(row=1, column=1, padx=20, pady=10, sticky="w")
+
+    # Ingresar Hora
+    label_hora = ctk.CTkLabel(frame_derecha, text="Hora (HH:MM AM/PM):", font=("Arial", 14), anchor="w")
+    label_hora.grid(row=2, column=0, padx=20, pady=10, sticky="e")
+
+    entry_hora = ctk.CTkEntry(frame_derecha)
+    entry_hora.grid(row=2, column=1, padx=20, pady=10, sticky="w")
+
+    # Motivo de la cita
+    label_motivo = ctk.CTkLabel(frame_derecha, text="Motivo:", font=("Arial", 14), anchor="w")
+    label_motivo.grid(row=3, column=0, padx=20, pady=10, sticky="e")
+
+    entry_motivo = ctk.CTkEntry(frame_derecha)
+    entry_motivo.grid(row=3, column=1, padx=20, pady=10, sticky="w")
+
+    # Botón para guardar cita
+    def guardar_cita():
+        paciente_seleccionado = pacientes_var.get()
+        hora = entry_hora.get().strip()
+        motivo = entry_motivo.get().strip()
+
+        if paciente_seleccionado == "Seleccionar paciente" or not hora or not motivo:
+            mensaje_error = ctk.CTkLabel(frame_derecha, text="Por favor, complete todos los campos.", font=("Arial", 14), fg_color="red")
+            mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
+            return
+
+        nueva_cita = {
+            "Hora": hora,
+            "Paciente": paciente_seleccionado,
+            "Motivo": motivo
+        }
+        citas.append(nueva_cita)
+        mostrar_mensaje_inicial()  # Regresar a la lista de citas
+
+    btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cita", command=guardar_cita)
+    btn_guardar.grid(row=4, column=0, columnspan=2, pady=20)
 
 # Función para mostrar el formulario de búsqueda (centrado)
 def mostrar_buscar_paciente():
