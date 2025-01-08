@@ -389,7 +389,7 @@ def mostrar_informacion_paciente(paciente):
     btn_eliminar = ctk.CTkButton(frame_derecha, text="Eliminar Paciente", command=eliminar_paciente)
     btn_eliminar.grid(row=len(campos)+3, column=0, columnspan=2, pady=10)
 
-    btn_volver = ctk.CTkButton(frame_derecha, text="Volver", command=mostrar_buscar_paciente)
+    btn_volver = ctk.CTkButton(frame_derecha, text="Volver", command=mostrar_mensaje_inicial)
     btn_volver.grid(row=len(campos)+4, column=0, columnspan=2, pady=10)
 
 
