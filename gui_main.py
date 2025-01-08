@@ -271,31 +271,86 @@ def mostrar_buscar_paciente():
     btn_buscar.grid(row=3, column=0, columnspan=2, pady=10)
 
 # Función para mostrar la información del paciente
+# Declaración global para pacientes_var
+pacientes_var = ctk.StringVar(value="Seleccionar paciente")
+
 def mostrar_informacion_paciente(paciente):
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
-    # Título de la información
     titulo_info = ctk.CTkLabel(frame_derecha, text="Información del Paciente", font=("Arial", 20, "bold"))
     titulo_info.grid(row=0, column=0, columnspan=2, pady=10)
 
-    # Mostrar los datos del paciente
-    for idx, (campo, valor) in enumerate(paciente.items()):
+    # Diccionario para campos y valores
+    campos = {
+        "DNI": paciente.get("DNI", ""),
+        "Nombre Completo": paciente.get("Nombre Completo", ""),
+        "Teléfono": paciente.get("Teléfono", ""),
+        "Correo Electrónico": paciente.get("Correo Electrónico", ""),
+        "Dirección":paciente.get("Dirección" , ""),
+        "Tipo de Sangre":paciente.get("Tipo de Sangre" , ""),
+        "Alergias":paciente.get("Alergias" , ""),
+        "Condiciones Médicas Preexistentes":paciente.get("Condiciones Médicas Preexistentes" , ""),
+        "Medicamentos Actuales":paciente.get("Medicamentos Actuales" , ""),
+        "Nombre Contacto de Emergencia":paciente.get("Nombre Contacto de Emergencia" , ""),
+        "Teléfono de Emergencia":paciente.get("Nombre Contacto de Emergencia" , ""),
+        "Relación con el Paciente":paciente.get("Relación con el Paciente" , "")
+    }
+
+    labels = {}
+
+    # Mostrar datos como etiquetas
+    for idx, (campo, valor) in enumerate(campos.items()):
         label_campo = ctk.CTkLabel(frame_derecha, text=f"{campo}:", font=("Arial", 14, "bold"), anchor="w")
-        label_campo.grid(row=idx+1, column=0, sticky="w", padx=10, pady=5)
+        label_campo.grid(row=idx+1, column=0, pady=5, sticky="w", padx=10)
 
-        valor_campo = ctk.CTkLabel(frame_derecha, text=valor, font=("Arial", 14), anchor="w")
-        valor_campo.grid(row=idx+1, column=1, sticky="w", padx=10, pady=5)
+        label_valor = ctk.CTkLabel(frame_derecha, text=valor, font=("Arial", 14), anchor="w")
+        label_valor.grid(row=idx+1, column=1, pady=5, sticky="w", padx=10)
+        labels[campo] = label_valor
 
-    # Botones adicionales
-    btn_editar = ctk.CTkButton(frame_derecha, text="Editar", command=lambda: print("Editar paciente"))
-    btn_editar.grid(row=len(paciente)+1, column=0, pady=20)
+    entries = {}  # Mover entries al ámbito de la función principal
 
-    btn_cita = ctk.CTkButton(frame_derecha, text="Crear Cita", command=lambda: mostrar_crear_cita())
-    btn_cita.grid(row=len(paciente)+1, column=1, pady=20)
+    def habilitar_edicion():
+        for widget in labels.values():
+            widget.grid_forget()
+        for idx, (campo, valor) in enumerate(campos.items()):
+            entry = ctk.CTkEntry(frame_derecha)
+            entry.insert(0, valor)
+            entry.grid(row=idx+1, column=1, pady=5, sticky="w", padx=10)
+            entries[campo] = entry
 
-    btn_historia = ctk.CTkButton(frame_derecha, text="Generar Historia Clínica", command=lambda: mostrar_historia_clinica(paciente))
-    btn_historia.grid(row=len(paciente)+2, column=0, columnspan=2, pady=10)
+        btn_editar.grid_forget()
+        btn_guardar.grid(row=len(campos)+1, column=0, columnspan=2, pady=10)
+
+    def guardar_cambios():
+        for campo, entry in entries.items():
+            paciente[campo] = entry.get()
+            labels[campo].configure(text=entry.get())
+            entry.grid_forget()
+            labels[campo].grid(row=list(campos.keys()).index(campo)+1, column=1, pady=5, sticky="w", padx=10)
+
+        btn_guardar.grid_forget()
+        btn_editar.grid(row=len(campos)+1, column=0, columnspan=2, pady=10)
+
+    def ir_a_crear_cita():
+        mostrar_crear_cita()
+        if paciente["Nombre Completo"] in [p["Nombre Completo"] for p in pacientes]:
+            pacientes_var.set(paciente["Nombre Completo"])
+
+    # Botón para guardar cambios (declarado antes para que sea accesible)
+    btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cambios", command=guardar_cambios)
+
+    # Botón para editar información
+    btn_editar = ctk.CTkButton(frame_derecha, text="Editar Información", command=habilitar_edicion)
+    btn_editar.grid(row=len(campos)+1, column=0, columnspan=2, pady=10)
+
+    # Botón para crear cita
+    btn_crear_cita = ctk.CTkButton(frame_derecha, text="Crear Cita", command=ir_a_crear_cita)
+    btn_crear_cita.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
+
+    # Botón para volver
+    btn_volver = ctk.CTkButton(frame_derecha, text="Volver", command=mostrar_mensaje_inicial)
+    btn_volver.grid(row=len(campos)+3, column=0, columnspan=2, pady=10)
 
     frame_derecha.grid_columnconfigure(1, weight=1)
 
