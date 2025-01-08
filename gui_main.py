@@ -22,7 +22,7 @@ frame_izquierdo.grid_rowconfigure((0, 1, 2, 3, 4), weight=1)  # Ajustar filas
 frame_izquierdo.grid_columnconfigure(0, weight=1)
 
 # Título en el marco izquierdo
-titulo = ctk.CTkLabel(frame_izquierdo, text="Consultorio", font=("Arial", 16, "bold"))
+titulo = ctk.CTkLabel(frame_izquierdo, text="Consultorio Dermatologico  \n Dra. Benilda Martel", font=("Arial", 16, "bold"))
 titulo.grid(row=0, column=0, padx=10, pady=(20, 10), sticky="n")
 
 
@@ -283,8 +283,10 @@ def mostrar_informacion_paciente(paciente):
 
     # Diccionario para campos y valores
     campos = {
-        "DNI": paciente.get("DNI", ""),
         "Nombre Completo": paciente.get("Nombre Completo", ""),
+        "DNI": paciente.get("DNI", ""),
+        "Fecha de Nacimiento (DD/MM/AAAA)": paciente.get("Fecha de Nacimiento (DD/MM/AAAA)" , ""),
+        "Género": paciente.get("Género" , ""),
         "Teléfono": paciente.get("Teléfono", ""),
         "Correo Electrónico": paciente.get("Correo Electrónico", ""),
         "Dirección":paciente.get("Dirección" , ""),
@@ -352,6 +354,9 @@ def mostrar_informacion_paciente(paciente):
     btn_volver = ctk.CTkButton(frame_derecha, text="Volver", command=mostrar_mensaje_inicial)
     btn_volver.grid(row=len(campos)+3, column=0, columnspan=2, pady=10)
 
+    btn_eliminar = ctk.CTkButton(frame_derecha , text = "Eliminar")
+    btn_eliminar.grid(row=len(campos)+4, column=0 , columnspan= 2, pady=10)
+
     frame_derecha.grid_columnconfigure(1, weight=1)
 
 # Función para mostrar el formulario de crear paciente (sin cambios)
@@ -366,7 +371,7 @@ def mostrar_formulario():
         "Nombre Completo",
         "Fecha de Nacimiento (DD/MM/AAAA)",
         "Género",
-        "Número de Identificación (CI)",
+        "DNI",
         "Teléfono",
         "Correo Electrónico",
         "Dirección",
