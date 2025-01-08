@@ -1,4 +1,4 @@
-from database import agregar_paciente , buscar_paciente_por_dni , actualizar_paciente , eliminar_paciente_por_id , obtener_pacientes , obtener_historia_clinica , agregar_historia_clinica
+from database import agregar_paciente, buscar_paciente_por_dni, actualizar_paciente, eliminar_paciente_por_id, obtener_pacientes, obtener_historia_clinica, agregar_historia_clinica
 import customtkinter as ctk
 
 # Configuración básica de la aplicación
@@ -26,7 +26,6 @@ frame_izquierdo.grid_columnconfigure(0, weight=1)
 titulo = ctk.CTkLabel(frame_izquierdo, text="Consultorio Dermatologico  \n Dra. Benilda Martel", font=("Arial", 16, "bold"))
 titulo.grid(row=0, column=0, padx=10, pady=(20, 10), sticky="n")
 
-
 # Botones en el menú izquierdo (organizados ergonómicamente)
 btn_crear = ctk.CTkButton(frame_izquierdo, text="Crear paciente", font=("Arial", 14),
                           width=170, height=50, corner_radius=15, command=lambda: mostrar_formulario())
@@ -37,12 +36,12 @@ btn_buscar = ctk.CTkButton(frame_izquierdo, text="Buscar paciente", font=("Arial
 btn_buscar.grid(row=2, column=0, padx=10, pady=20, sticky="n")
 
 btn_crear_cita = ctk.CTkButton(frame_izquierdo, text="Crear Cita", font=("Arial", 14),
-                               width=170, height=50, corner_radius=15 , command=lambda: mostrar_crear_cita())
+                               width=170, height=50, corner_radius=15, command=lambda: mostrar_crear_cita())
 btn_crear_cita.grid(row=3, column=0, padx=10, pady=20, sticky="n")
 
-btn_listar_pacientes = ctk.CTkButton(frame_izquierdo , text="Listar Pacientes" , font=("Arial" , 14),
-                                     width=170 , height=50 , corner_radius=15 )
-btn_listar_pacientes.grid(row=4 , column = 0, padx = 10, pady= 20 , sticky="n")
+btn_listar_pacientes = ctk.CTkButton(frame_izquierdo, text="Listar Pacientes", font=("Arial", 14),
+                                     width=170, height=50, corner_radius=15)
+btn_listar_pacientes.grid(row=4, column=0, padx=10, pady=20, sticky="n")
 
 frame_izquierdo.grid_rowconfigure(4, weight=2)  # Espacio adicional para balancear
 
@@ -376,7 +375,7 @@ def mostrar_buscar_paciente():
 # Declaración global para pacientes_var
 pacientes_var = ctk.StringVar(value="Seleccionar paciente")
 
-def mostrar_informacion_paciente(paciente):
+def mostrar_informacion_paciente(paciente, editable=False):
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -418,31 +417,40 @@ def mostrar_informacion_paciente(paciente):
         for widget in labels.values():
             widget.grid_forget()
 
+        # Crear entradas en lugar de etiquetas
         for idx, (campo, valor) in enumerate(campos.items()):
             entry = ctk.CTkEntry(frame_derecha, font=("Arial", 14))
-            entry.insert(0, valor)
-            entry.grid(row=idx+1, column=1, sticky="w", padx=20, pady=5)
+            entry.insert(0, valor)  # Mostrar el valor actual
+            entry.grid(row=idx + 1, column=1, sticky="w", padx=20, pady=5)
             entries[campo] = entry
 
+        # Ocultar el botón de editar y agregar el de guardar
         btn_editar.grid_forget()
-        btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar")
-        btn_guardar.grid(row=len(campos)+1, column=0, columnspan=2, pady=10)
+        btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cambios", command=guardar_cambios)
+        btn_guardar.grid(row=len(campos) + 1, column=0, columnspan=2, pady=10)
 
     def guardar_cambios():
         """Guarda los cambios editados del paciente en la base de datos."""
-        nuevos_datos = {campo: entry.get() for campo, entry in entries.items()}
+        nuevos_datos = {campo: entry.get() for campo, entry in entries.items()}  # Extraer datos de las entradas
 
         try:
+            # Actualizar la base de datos
             actualizar_paciente(paciente["numero_identificacion"], list(nuevos_datos.values()))
-            mensaje = ctk.CTkLabel(frame_derecha, text="Cambios guardados exitosamente.", font=("Arial", 14), fg_color="green")
-            mensaje.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
 
-            # Actualizar los datos mostrados en la misma pantalla
-            paciente.update(nuevos_datos)
-            mostrar_informacion_paciente(paciente)
+            # Mostrar mensaje de éxito
+            mensaje = ctk.CTkLabel(frame_derecha, text="Cambios guardados exitosamente.", font=("Arial", 14), fg_color="green")
+            mensaje.grid(row=len(campos) + 2, column=0, columnspan=2, pady=10)
+
+            # Recargar el paciente desde la base de datos
+            paciente_actualizado = buscar_paciente_por_dni(paciente["numero_identificacion"])
+            if paciente_actualizado:
+                mostrar_informacion_paciente(paciente_actualizado, editable=True)
+            else:
+                print("Error: No se pudo obtener el paciente actualizado.")
+
         except Exception as e:
             mensaje = ctk.CTkLabel(frame_derecha, text=f"Error al guardar cambios: {str(e)}", font=("Arial", 14), fg_color="red")
-            mensaje.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
+            mensaje.grid(row=len(campos) + 2, column=0, columnspan=2, pady=10)
 
     def ir_a_crear_cita():
         """Navega a la vista de crear cita con el paciente preseleccionado."""
@@ -462,7 +470,7 @@ def mostrar_informacion_paciente(paciente):
             btn_confirmar = ctk.CTkButton(frame_derecha, text="Sí, eliminar", command=confirmar_eliminacion)
             btn_confirmar.grid(row=len(campos)+3, column=0, pady=10)
 
-            btn_cancelar = ctk.CTkButton(frame_derecha, text="Cancelar", command=lambda: mostrar_informacion_paciente(paciente))
+            btn_cancelar = ctk.CTkButton(frame_derecha, text="Cancelar", command=lambda: mostrar_informacion_paciente(paciente, editable=True))
             btn_cancelar.grid(row=len(campos)+3, column=1, pady=10)
         except Exception as e:
             mensaje = ctk.CTkLabel(frame_derecha, text=f"Error al eliminar paciente: {str(e)}", font=("Arial", 14), fg_color="red")
@@ -472,10 +480,12 @@ def mostrar_informacion_paciente(paciente):
     botones_frame = ctk.CTkFrame(frame_derecha)
     botones_frame.grid(row=len(campos)+1, column=0, columnspan=2, pady=20, padx=20)
 
-    btn_editar = ctk.CTkButton(botones_frame, text="Editar Información", command=habilitar_edicion)
-    btn_editar.grid(row=0, column=0, padx=10)
+    # Solo mostrar el botón "Editar Información" si editable es True
+    if editable:
+        btn_editar = ctk.CTkButton(botones_frame, text="Editar Información", command=habilitar_edicion)
+        btn_editar.grid(row=0, column=0, padx=10)
 
-    btn_historia = ctk.CTkButton(botones_frame, text="Historia Clínica", command=gestionar_historia_clinica)
+    btn_historia = ctk.CTkButton(botones_frame, text="Historia Clínica", command=lambda:gestionar_historia_clinica(paciente))
     btn_historia.grid(row=0, column=1, padx=10)
 
     btn_crear_cita = ctk.CTkButton(botones_frame, text="Crear Cita", command=ir_a_crear_cita)
@@ -580,3 +590,4 @@ def mostrar_formulario():
 
 # Ejecutar la aplicación
 app.mainloop()
+
