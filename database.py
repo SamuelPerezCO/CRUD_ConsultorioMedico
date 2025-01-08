@@ -83,6 +83,7 @@ def buscar_paciente(id_paciente):
 
 # Actualizar información de un paciente
 def actualizar_paciente(dni, nuevos_datos):
+    print("Entre en actualizar_paciente")
     conexion = conectar()
     if conexion:
         try:
