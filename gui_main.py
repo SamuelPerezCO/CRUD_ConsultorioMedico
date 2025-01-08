@@ -1,3 +1,4 @@
+from database import agregar_paciente , buscar_paciente_por_dni , actualizar_paciente
 import customtkinter as ctk
 
 # Configuración básica de la aplicación
@@ -246,33 +247,40 @@ def mostrar_buscar_paciente():
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
-    # Configurar centrado
-    frame_derecha.grid_rowconfigure((0, 1, 2, 3, 4), weight=1)
+    # Configurar el diseño
+    frame_derecha.grid_rowconfigure((0, 1, 2, 3), weight=1)
     frame_derecha.grid_columnconfigure((0, 1), weight=1)
 
     # Título de búsqueda
     titulo_busqueda = ctk.CTkLabel(frame_derecha, text="Buscar Paciente", font=("Arial", 20, "bold"))
-    titulo_busqueda.grid(row=1, column=0, columnspan=2, pady=10)
+    titulo_busqueda.grid(row=0, column=0, columnspan=2, pady=20)
 
-    # Campo para el DNI
-    label_dni = ctk.CTkLabel(frame_derecha, text="DNI:", anchor="w", font=("Arial", 14))
-    label_dni.grid(row=2, column=0, sticky="e", padx=10)
+    # Campo de texto para el DNI
+    label_dni = ctk.CTkLabel(frame_derecha, text="Número de Identificación (DNI):", font=("Arial", 14))
+    label_dni.grid(row=1, column=0, padx=20, pady=10, sticky="e")
 
     entry_dni = ctk.CTkEntry(frame_derecha)
-    entry_dni.grid(row=2, column=1, sticky="w", padx=10)
+    entry_dni.grid(row=1, column=1, padx=20, pady=10, sticky="w")
 
     def buscar_paciente():
         dni = entry_dni.get().strip()
-        paciente = next((p for p in pacientes if p["DNI"] == dni), None)
-        if paciente:
-            mostrar_informacion_paciente(paciente)
+        if not dni:
+            mensaje_error = ctk.CTkLabel(frame_derecha, text="Por favor, ingrese un número de identificación válido.", font=("Arial", 14), fg_color="red")
+            mensaje_error.grid(row=3, column=0, columnspan=2, pady=10)
+            return
+        
+        # Buscar el paciente en la base de datos
+        resultado = buscar_paciente_por_dni(dni)
+        if resultado:
+            mostrar_informacion_paciente(resultado)
         else:
-            mensaje_error = ctk.CTkLabel(frame_derecha, text="Paciente no encontrado", font=("Arial", 14), fg_color="red")
-            mensaje_error.grid(row=4, column=0, columnspan=2, pady=20)
+            mensaje_error = ctk.CTkLabel(frame_derecha, text="Paciente no encontrado.", font=("Arial", 14), fg_color="red")
+            mensaje_error.grid(row=3, column=0, columnspan=2, pady=10)
 
-    # Botón de búsqueda
-    btn_buscar = ctk.CTkButton(frame_derecha, text="Buscar", command=buscar_paciente)
-    btn_buscar.grid(row=3, column=0, columnspan=2, pady=10)
+    # Botón para buscar al paciente
+    btn_buscar = ctk.CTkButton(frame_derecha, text="Buscar", font=("Arial", 14), command=buscar_paciente)
+    btn_buscar.grid(row=2, column=0, columnspan=2, pady=20)
+
 
 # Función para mostrar la información del paciente
 # Declaración global para pacientes_var
@@ -282,86 +290,90 @@ def mostrar_informacion_paciente(paciente):
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
+    # Título
     titulo_info = ctk.CTkLabel(frame_derecha, text="Información del Paciente", font=("Arial", 20, "bold"))
-    titulo_info.grid(row=0, column=0, columnspan=2, pady=10)
+    titulo_info.grid(row=0, column=0, columnspan=2, pady=20)
 
-    # Diccionario para campos y valores
+    # Mostrar todos los campos del paciente
     campos = {
-        "Nombre Completo": paciente.get("Nombre Completo", ""),
-        "DNI": paciente.get("DNI", ""),
-        "Fecha de Nacimiento (DD/MM/AAAA)": paciente.get("Fecha de Nacimiento (DD/MM/AAAA)" , ""),
-        "Género": paciente.get("Género" , ""),
-        "Teléfono": paciente.get("Teléfono", ""),
-        "Correo Electrónico": paciente.get("Correo Electrónico", ""),
-        "Dirección":paciente.get("Dirección" , ""),
-        "Tipo de Sangre":paciente.get("Tipo de Sangre" , ""),
-        "Alergias":paciente.get("Alergias" , ""),
-        "Condiciones Médicas Preexistentes":paciente.get("Condiciones Médicas Preexistentes" , ""),
-        "Medicamentos Actuales":paciente.get("Medicamentos Actuales" , ""),
-        "Nombre Contacto de Emergencia":paciente.get("Nombre Contacto de Emergencia" , ""),
-        "Teléfono de Emergencia":paciente.get("Nombre Contacto de Emergencia" , ""),
-        "Relación con el Paciente":paciente.get("Relación con el Paciente" , "")
+        "Nombre Completo": paciente["nombre_completo"],
+        "Fecha de Nacimiento": paciente["fecha_nacimiento"],
+        "Género": paciente["genero"],
+        "Número de Identificación": paciente["numero_identificacion"],
+        "Teléfono": paciente["telefono"],
+        "Correo Electrónico": paciente["correo_electronico"],
+        "Dirección": paciente["direccion"],
+        "Tipo de Sangre": paciente["tipo_sangre"],
+        "Alergias": paciente["alergias"],
+        "Condiciones Médicas Preexistentes": paciente["condiciones_medicas_preexistentes"],
+        "Medicamentos Actuales": paciente["medicamentos_actuales"],
+        "Nombre Contacto de Emergencia": paciente["nombre_contacto_emergencia"],
+        "Teléfono de Emergencia": paciente["telefono_emergencia"],
+        "Relación con el Paciente": paciente["relacion_paciente"]
     }
 
     labels = {}
+    entries = {}
 
-    # Mostrar datos como etiquetas
     for idx, (campo, valor) in enumerate(campos.items()):
-        label_campo = ctk.CTkLabel(frame_derecha, text=f"{campo}:", font=("Arial", 14, "bold"), anchor="w")
-        label_campo.grid(row=idx+1, column=0, pady=5, sticky="w", padx=10)
+        label_campo = ctk.CTkLabel(frame_derecha, text=f"{campo}:", font=("Arial", 14, "bold"))
+        label_campo.grid(row=idx+1, column=0, sticky="e", padx=20, pady=5)
 
-        label_valor = ctk.CTkLabel(frame_derecha, text=valor, font=("Arial", 14), anchor="w")
-        label_valor.grid(row=idx+1, column=1, pady=5, sticky="w", padx=10)
+        label_valor = ctk.CTkLabel(frame_derecha, text=valor if valor else "N/A", font=("Arial", 14))
+        label_valor.grid(row=idx+1, column=1, sticky="w", padx=20, pady=5)
         labels[campo] = label_valor
 
-    entries = {}  # Mover entries al ámbito de la función principal
-
     def habilitar_edicion():
+        """Habilita la edición de los datos del paciente."""
         for widget in labels.values():
             widget.grid_forget()
+
         for idx, (campo, valor) in enumerate(campos.items()):
-            entry = ctk.CTkEntry(frame_derecha)
+            entry = ctk.CTkEntry(frame_derecha, font=("Arial", 14))
             entry.insert(0, valor)
-            entry.grid(row=idx+1, column=1, pady=5, sticky="w", padx=10)
+            entry.grid(row=idx+1, column=1, sticky="w", padx=20, pady=5)
             entries[campo] = entry
 
         btn_editar.grid_forget()
         btn_guardar.grid(row=len(campos)+1, column=0, columnspan=2, pady=10)
 
     def guardar_cambios():
-        for campo, entry in entries.items():
-            paciente[campo] = entry.get()
-            labels[campo].configure(text=entry.get())
-            entry.grid_forget()
-            labels[campo].grid(row=list(campos.keys()).index(campo)+1, column=1, pady=5, sticky="w", padx=10)
+        """Guarda los cambios editados del paciente en la base de datos."""
+        nuevos_datos = {campo: entry.get() for campo, entry in entries.items()}
 
-        btn_guardar.grid_forget()
-        btn_editar.grid(row=len(campos)+1, column=0, columnspan=2, pady=10)
+        try:
+            actualizar_paciente(paciente["numero_identificacion"], list(nuevos_datos.values()))
+            mensaje = ctk.CTkLabel(frame_derecha, text="Cambios guardados exitosamente.", font=("Arial", 14), fg_color="green")
+            mensaje.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
+
+            # Actualizar los datos mostrados
+            for campo, valor in nuevos_datos.items():
+                labels[campo].configure(text=valor)
+                entries[campo].grid_forget()
+                labels[campo].grid(row=list(campos.keys()).index(campo)+1, column=1, sticky="w", padx=20, pady=5)
+
+            btn_guardar.grid_forget()
+            btn_editar.grid(row=len(campos)+1, column=0, columnspan=2, pady=10)
+        except Exception as e:
+            mensaje = ctk.CTkLabel(frame_derecha, text=f"Error al guardar cambios: {str(e)}", font=("Arial", 14), fg_color="red")
+            mensaje.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
 
     def ir_a_crear_cita():
+        """Navega a la vista de crear cita con el paciente preseleccionado."""
         mostrar_crear_cita()
-        if paciente["Nombre Completo"] in [p["Nombre Completo"] for p in pacientes]:
-            pacientes_var.set(paciente["Nombre Completo"])
+        pacientes_var.set(paciente["nombre_completo"])
 
-    # Botón para guardar cambios (declarado antes para que sea accesible)
-    btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cambios", command=guardar_cambios)
-
-    # Botón para editar información
+    # Botones de acción
     btn_editar = ctk.CTkButton(frame_derecha, text="Editar Información", command=habilitar_edicion)
     btn_editar.grid(row=len(campos)+1, column=0, columnspan=2, pady=10)
 
-    # Botón para crear cita
+    btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cambios", command=guardar_cambios)
+
     btn_crear_cita = ctk.CTkButton(frame_derecha, text="Crear Cita", command=ir_a_crear_cita)
     btn_crear_cita.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
 
-    # Botón para volver
-    btn_volver = ctk.CTkButton(frame_derecha, text="Volver", command=mostrar_mensaje_inicial)
+    btn_volver = ctk.CTkButton(frame_derecha, text="Volver", command=mostrar_buscar_paciente)
     btn_volver.grid(row=len(campos)+3, column=0, columnspan=2, pady=10)
-
-    btn_eliminar = ctk.CTkButton(frame_derecha , text = "Eliminar")
-    btn_eliminar.grid(row=len(campos)+4, column=0 , columnspan= 2, pady=10)
-
-    frame_derecha.grid_columnconfigure(1, weight=1)
 
 # Función para mostrar el formulario de crear paciente (sin cambios)
 def mostrar_formulario():
@@ -411,9 +423,17 @@ def mostrar_formulario():
             entries[campo] = entry
 
     def guardar_paciente():
-        datos_paciente = {campo: entrada.get() if not isinstance(entrada, ctk.StringVar) else entrada.get() for campo, entrada in entries.items()}
-        pacientes.append(datos_paciente)
-        mostrar_informacion_paciente(datos_paciente)
+        datos_paciente = [
+            entrada.get() if not isinstance(entrada, ctk.StringVar) else entrada.get() 
+            for entrada in entries.values()
+        ]
+        try:
+            agregar_paciente(datos_paciente)  # Guardar en la base de datos
+            mensaje = ctk.CTkLabel(frame_derecha, text="Paciente guardado exitosamente.", font=("Arial", 14), fg_color="green")
+            mensaje.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
+        except Exception as e:
+            mensaje = ctk.CTkLabel(frame_derecha, text=f"Error: {str(e)}", font=("Arial", 14), fg_color="red")
+            mensaje.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
 
     btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar", command=guardar_paciente)
     btn_guardar.grid(row=len(campos)+1, column=0, columnspan=2, pady=20)
