@@ -64,6 +64,18 @@ def actualizar_paciente(dni, nuevos_datos):
             print(f"Error al actualizar paciente: {e}")
         finally:
             cerrar_conexion(conexion)
+            
+def eliminar_paciente_por_id(dni):
+    conexion = conectar()
+    if conexion:
+        try:
+            cursor = conexion.cursor()
+            cursor.execute("DELETE FROM Paciente WHERE numero_identificacion = ?", (dni,))
+            conexion.commit()
+        except sqlite3.Error as e:
+            print(f"Error al eliminar paciente: {e}")
+        finally:
+            cerrar_conexion(conexion)
 
 
 # Eliminar un paciente

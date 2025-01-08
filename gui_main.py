@@ -1,4 +1,4 @@
-from database import agregar_paciente , buscar_paciente_por_dni , actualizar_paciente
+from database import agregar_paciente , buscar_paciente_por_dni , actualizar_paciente , eliminar_paciente_por_id , obtener_pacientes
 import customtkinter as ctk
 
 # Configuración básica de la aplicación
@@ -346,14 +346,9 @@ def mostrar_informacion_paciente(paciente):
             mensaje = ctk.CTkLabel(frame_derecha, text="Cambios guardados exitosamente.", font=("Arial", 14), fg_color="green")
             mensaje.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
 
-            # Actualizar los datos mostrados
-            for campo, valor in nuevos_datos.items():
-                labels[campo].configure(text=valor)
-                entries[campo].grid_forget()
-                labels[campo].grid(row=list(campos.keys()).index(campo)+1, column=1, sticky="w", padx=20, pady=5)
-
-            btn_guardar.grid_forget()
-            btn_editar.grid(row=len(campos)+1, column=0, columnspan=2, pady=10)
+            # Actualizar los datos mostrados en la misma pantalla
+            paciente.update(nuevos_datos)
+            mostrar_informacion_paciente(paciente)
         except Exception as e:
             mensaje = ctk.CTkLabel(frame_derecha, text=f"Error al guardar cambios: {str(e)}", font=("Arial", 14), fg_color="red")
             mensaje.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
@@ -362,6 +357,25 @@ def mostrar_informacion_paciente(paciente):
         """Navega a la vista de crear cita con el paciente preseleccionado."""
         mostrar_crear_cita()
         pacientes_var.set(paciente["nombre_completo"])
+
+    def eliminar_paciente():
+        """Elimina al paciente de la base de datos."""
+        try:
+            confirmar = ctk.CTkLabel(frame_derecha, text="¿Está seguro de eliminar este paciente?", font=("Arial", 14), fg_color="yellow")
+            confirmar.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
+
+            def confirmar_eliminacion():
+                eliminar_paciente_por_id(paciente["numero_identificacion"])
+                mostrar_buscar_paciente()
+
+            btn_confirmar = ctk.CTkButton(frame_derecha, text="Sí, eliminar", command=confirmar_eliminacion)
+            btn_confirmar.grid(row=len(campos)+3, column=0, pady=10)
+
+            btn_cancelar = ctk.CTkButton(frame_derecha, text="Cancelar", command=lambda: mostrar_informacion_paciente(paciente))
+            btn_cancelar.grid(row=len(campos)+3, column=1, pady=10)
+        except Exception as e:
+            mensaje = ctk.CTkLabel(frame_derecha, text=f"Error al eliminar paciente: {str(e)}", font=("Arial", 14), fg_color="red")
+            mensaje.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
 
     # Botones de acción
     btn_editar = ctk.CTkButton(frame_derecha, text="Editar Información", command=habilitar_edicion)
@@ -372,8 +386,12 @@ def mostrar_informacion_paciente(paciente):
     btn_crear_cita = ctk.CTkButton(frame_derecha, text="Crear Cita", command=ir_a_crear_cita)
     btn_crear_cita.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
 
+    btn_eliminar = ctk.CTkButton(frame_derecha, text="Eliminar Paciente", command=eliminar_paciente)
+    btn_eliminar.grid(row=len(campos)+3, column=0, columnspan=2, pady=10)
+
     btn_volver = ctk.CTkButton(frame_derecha, text="Volver", command=mostrar_buscar_paciente)
-    btn_volver.grid(row=len(campos)+3, column=0, columnspan=2, pady=10)
+    btn_volver.grid(row=len(campos)+4, column=0, columnspan=2, pady=10)
+
 
 # Función para mostrar el formulario de crear paciente (sin cambios)
 def mostrar_formulario():
@@ -429,11 +447,35 @@ def mostrar_formulario():
         ]
         try:
             agregar_paciente(datos_paciente)  # Guardar en la base de datos
-            mensaje = ctk.CTkLabel(frame_derecha, text="Paciente guardado exitosamente.", font=("Arial", 14), fg_color="green")
-            mensaje.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
+
+            # Recargar la lista de pacientes desde la base de datos
+            global pacientes
+            pacientes = [{"DNI": row[3], "Nombre Completo": row[0], "Teléfono": row[4], "Correo Electrónico": row[5]} for row in obtener_pacientes()]
+
+            # Buscar el paciente recién agregado
+            nuevo_paciente = {
+                "nombre_completo": datos_paciente[0],
+                "fecha_nacimiento": datos_paciente[1],
+                "genero": datos_paciente[2],
+                "numero_identificacion": datos_paciente[3],
+                "telefono": datos_paciente[4],
+                "correo_electronico": datos_paciente[5],
+                "direccion": datos_paciente[6],
+                "tipo_sangre": datos_paciente[7],
+                "alergias": datos_paciente[8],
+                "condiciones_medicas_preexistentes": datos_paciente[9],
+                "medicamentos_actuales": datos_paciente[10],
+                "nombre_contacto_emergencia": datos_paciente[11],
+                "telefono_emergencia": datos_paciente[12],
+                "relacion_paciente": datos_paciente[13],
+            }
+
+            # Mostrar la información del paciente recién creado
+            mostrar_informacion_paciente(nuevo_paciente)
         except Exception as e:
             mensaje = ctk.CTkLabel(frame_derecha, text=f"Error: {str(e)}", font=("Arial", 14), fg_color="red")
             mensaje.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
+
 
     btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar", command=guardar_paciente)
     btn_guardar.grid(row=len(campos)+1, column=0, columnspan=2, pady=20)
