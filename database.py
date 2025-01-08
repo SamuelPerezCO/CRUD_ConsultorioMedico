@@ -1,6 +1,43 @@
 from db_connector import conectar, cerrar_conexion
 import sqlite3
 
+def agregar_historia_clinica(dni_paciente, registro):
+    conexion = conectar()
+    try:
+        cursor = conexion.cursor()
+        cursor.execute("""
+            INSERT INTO HistoriaClinica (dni_paciente, fecha, motivo, diagnostico, tratamiento) 
+            VALUES (?, ?, ?, ?, ?)
+        """, (
+            dni_paciente,
+            registro["Fecha"],
+            registro["Motivo"],
+            registro["Diagnóstico"],
+            registro["Tratamiento"]
+        ))
+        conexion.commit()
+    finally:
+        cerrar_conexion(conexion)
+
+
+def obtener_historia_clinica(dni_paciente):
+    conexion = conectar()
+    try:
+        cursor = conexion.cursor()
+        cursor.execute("""
+            SELECT fecha, motivo, diagnostico, tratamiento 
+            FROM HistoriaClinica 
+            WHERE dni_paciente = ?
+        """, (dni_paciente,))
+        resultados = cursor.fetchall()
+        return [
+            {"Fecha": r[0], "Motivo": r[1], "Diagnóstico": r[2], "Tratamiento": r[3]} 
+            for r in resultados
+        ]
+    finally:
+        cerrar_conexion(conexion)
+
+
 # Función para obtener pacientes
 def obtener_pacientes():
     conexion = conectar()
@@ -64,7 +101,7 @@ def actualizar_paciente(dni, nuevos_datos):
             print(f"Error al actualizar paciente: {e}")
         finally:
             cerrar_conexion(conexion)
-            
+
 def eliminar_paciente_por_id(dni):
     conexion = conectar()
     if conexion:
