@@ -39,6 +39,10 @@ btn_crear_cita = ctk.CTkButton(frame_izquierdo, text="Crear Cita", font=("Arial"
                                width=170, height=50, corner_radius=15 , command=lambda: mostrar_crear_cita())
 btn_crear_cita.grid(row=3, column=0, padx=10, pady=20, sticky="n")
 
+btn_listar_pacientes = ctk.CTkButton(frame_izquierdo , text="Listar Pacientes" , font=("Arial" , 14),
+                                     width=170 , height=50 , corner_radius=15 )
+btn_listar_pacientes.grid(row=4 , column = 0, padx = 10, pady= 20 , sticky="n")
+
 frame_izquierdo.grid_rowconfigure(4, weight=2)  # Espacio adicional para balancear
 
 # Marco para la sección derecha
