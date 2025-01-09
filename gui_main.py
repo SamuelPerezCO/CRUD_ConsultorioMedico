@@ -491,7 +491,7 @@ def mostrar_informacion_paciente(paciente, editable=False):
         label_valor.grid(row=idx+1, column=1, sticky="w", padx=20, pady=5)
         labels[campo] = label_valor
 
-    def habilitar_edicion():
+    def habilitar_edicion(paciente):
         """Habilita la edición de los datos del paciente."""
         for widget in labels.values():
             widget.grid_forget()
@@ -505,10 +505,10 @@ def mostrar_informacion_paciente(paciente, editable=False):
 
         # Ocultar el botón de editar y agregar el de guardar
         btn_editar.grid_forget()
-        btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cambios", command=guardar_cambios)
-        btn_guardar.grid(row=len(campos) + 1, column=0, columnspan=2, pady=10)
+        btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cambios", command=lambda: guardar_cambios(paciente))
+        btn_guardar.grid(row=len(campos) + 2, column=0, columnspan=2, pady=10)
 
-    def guardar_cambios():
+    def guardar_cambios(paciente):
         """Guarda los cambios editados del paciente en la base de datos."""
         nuevos_datos = {campo: entry.get() for campo, entry in entries.items()}  # Extraer datos de las entradas
 
@@ -559,12 +559,11 @@ def mostrar_informacion_paciente(paciente, editable=False):
     botones_frame = ctk.CTkFrame(frame_derecha)
     botones_frame.grid(row=len(campos)+1, column=0, columnspan=2, pady=20, padx=20)
 
-    # Solo mostrar el botón "Editar Información" si editable es True
-    if editable:
-        btn_editar = ctk.CTkButton(botones_frame, text="Editar Información", command=habilitar_edicion)
-        btn_editar.grid(row=0, column=0, padx=10)
+    # if editable:  # Mostrar el botón "Editar Información" si se permite la edición
+    btn_editar = ctk.CTkButton(botones_frame, text="Editar Información", command=lambda: habilitar_edicion(paciente))
+    btn_editar.grid(row=0, column=0, padx=10)
 
-    btn_historia = ctk.CTkButton(botones_frame, text="Historia Clínica", command=lambda:gestionar_historia_clinica(paciente))
+    btn_historia = ctk.CTkButton(botones_frame, text="Historia Clínica", command=lambda: gestionar_historia_clinica(paciente))
     btn_historia.grid(row=0, column=1, padx=10)
 
     btn_crear_cita = ctk.CTkButton(botones_frame, text="Crear Cita", command=ir_a_crear_cita)
@@ -575,6 +574,7 @@ def mostrar_informacion_paciente(paciente, editable=False):
 
     btn_volver = ctk.CTkButton(botones_frame, text="Volver", command=mostrar_mensaje_inicial)
     btn_volver.grid(row=0, column=4, padx=10)
+
 
 
 # Función para mostrar el formulario de crear paciente (sin cambios)
