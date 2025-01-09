@@ -6,7 +6,7 @@ def agregar_historia_clinica(dni_paciente, registro):
     try:
         cursor = conexion.cursor()
         cursor.execute("""
-            INSERT INTO HistoriaClinica (dni_paciente, fecha, motivo, diagnostico, tratamiento) 
+            INSERT INTO Historia_Clinica (dni_paciente, fecha, motivo, diagnostico, tratamiento) 
             VALUES (?, ?, ?, ?, ?)
         """, (
             dni_paciente,
@@ -20,15 +20,15 @@ def agregar_historia_clinica(dni_paciente, registro):
         cerrar_conexion(conexion)
 
 
-def obtener_historia_clinica(dni_paciente):
+def obtener_historia_clinica(numero_identificacion):
     conexion = conectar()
     try:
         cursor = conexion.cursor()
         cursor.execute("""
             SELECT fecha, motivo, diagnostico, tratamiento 
-            FROM HistoriaClinica 
-            WHERE dni_paciente = ?
-        """, (dni_paciente,))
+            FROM Historia_Clinica 
+            WHERE numero_identificacion = ?
+        """, (numero_identificacion,))
         resultados = cursor.fetchall()
         return [
             {"Fecha": r[0], "Motivo": r[1], "Diagnóstico": r[2], "Tratamiento": r[3]} 
@@ -36,6 +36,7 @@ def obtener_historia_clinica(dni_paciente):
         ]
     finally:
         cerrar_conexion(conexion)
+
 
 
 # Función para obtener pacientes
@@ -83,7 +84,6 @@ def buscar_paciente(id_paciente):
 
 # Actualizar información de un paciente
 def actualizar_paciente(dni, nuevos_datos):
-    print("Entre en actualizar_paciente")
     conexion = conectar()
     if conexion:
         try:
@@ -115,7 +115,6 @@ def eliminar_paciente_por_id(dni):
         finally:
             cerrar_conexion(conexion)
 
-
 # Eliminar un paciente
 def eliminar_paciente(id_paciente):
     conexion, cursor = conectar()
@@ -131,7 +130,6 @@ def buscar_paciente_por_dni(dni):
             cursor.execute("SELECT * FROM Paciente WHERE numero_identificacion = ?", (dni,))
             resultado = cursor.fetchone()
             if resultado:
-                # Convertir los datos en un diccionario para facilitar el uso
                 campos = [
                     "nombre_completo", "fecha_nacimiento", "genero", "numero_identificacion", 
                     "telefono", "correo_electronico", "direccion", "tipo_sangre", 
@@ -147,21 +145,21 @@ def buscar_paciente_por_dni(dni):
             cerrar_conexion(conexion)
 
 # Crear una nueva cita
-def agregar_cita(datos_cita):
-    conexion = conectar()
-    try:
-        cursor = conexion.cursor()
-        cursor.execute("""
-            INSERT INTO Cita (
-                numero_identificacion, fecha_hora, motivo
-            ) VALUES (?, ?, ?)
-        """, datos_cita)
-        conexion.commit()
-        print("Cita agregada exitosamente.")
-    except sqlite3.Error as e:
-        print(f"Error al agregar cita: {e}")
-    finally:
-        cerrar_conexion(conexion)
+# def agregar_cita(datos_cita):
+#     conexion = conectar()
+#     try:
+#         cursor = conexion.cursor()
+#         cursor.execute("""
+#             INSERT INTO Cita (
+#                 numero_identificacion, fecha_hora, motivo
+#             ) VALUES (?, ?, ?)
+#         """, datos_cita)
+#         conexion.commit()
+#         print("Cita agregada exitosamente.")
+#     except sqlite3.Error as e:
+#         print(f"Error al agregar cita: {e}")
+#     finally:
+#         cerrar_conexion(conexion)
 
 # # Obtener todas las citas
 # def obtener_citas():
@@ -294,5 +292,88 @@ def obtener_numero_identificacion_por_cita(id_cita):
         cursor.execute("SELECT numero_identificacion FROM Cita WHERE id_cita = ?", (id_cita,))
         resultado = cursor.fetchone()
         return resultado[0] if resultado else None
+    finally:
+        cerrar_conexion(conexion)
+
+def agregar_historia_clinica(numero_identificacion, registro):
+    conexion = conectar()
+    try:
+        cursor = conexion.cursor()
+        cursor.execute("""
+            INSERT INTO Historia_Clinica (numero_identificacion, fecha, motivo, diagnostico, tratamiento) 
+            VALUES (?, ?, ?, ?, ?)
+        """, (
+            numero_identificacion,
+            registro["Fecha"],
+            registro["Motivo"],
+            registro["Diagnóstico"],
+            registro["Tratamiento"]
+        ))
+        conexion.commit()
+    finally:
+        cerrar_conexion(conexion)
+
+def obtener_historia_clinica(numero_identificacion):
+    conexion = conectar()
+    try:
+        cursor = conexion.cursor()
+        cursor.execute("""
+            SELECT fecha, motivo, diagnostico, tratamiento 
+            FROM Historia_Clinica 
+            WHERE numero_identificacion = ?
+        """, (numero_identificacion,))
+        resultados = cursor.fetchall()
+        return [
+            {"Fecha": r[0], "Motivo": r[1], "Diagnóstico": r[2], "Tratamiento": r[3]} 
+            for r in resultados
+        ]
+    finally:
+        cerrar_conexion(conexion)
+
+def actualizar_historia_clinica(id_historia, nuevos_datos):
+    conexion = conectar()
+    try:
+        cursor = conexion.cursor()
+        cursor.execute("""
+            UPDATE Historia_Clinica 
+            SET fecha = ?, motivo = ?, diagnostico = ?, tratamiento = ? 
+            WHERE id_historia = ?
+        """, (
+            nuevos_datos["Fecha"],
+            nuevos_datos["Motivo"],
+            nuevos_datos["Diagnóstico"],
+            nuevos_datos["Tratamiento"],
+            id_historia
+        ))
+        conexion.commit()
+        print("Historia clínica actualizada exitosamente.")
+    except sqlite3.Error as e:
+        print(f"Error al actualizar historia clínica: {e}")
+    finally:
+        cerrar_conexion(conexion)
+
+def obtener_historia_por_id(id_historia):
+    conexion = conectar()
+    try:
+        cursor = conexion.cursor()
+        cursor.execute("""
+            SELECT id_historia, numero_identificacion, fecha, motivo, diagnostico, tratamiento 
+            FROM Historia_Clinica 
+            WHERE id_historia = ?
+        """, (id_historia,))
+        resultado = cursor.fetchone()
+        if resultado:
+            return {
+                "ID": resultado[0],
+                "DNI": resultado[1],
+                "Fecha": resultado[2],
+                "Motivo": resultado[3],
+                "Diagnóstico": resultado[4],
+                "Tratamiento": resultado[5]
+            }
+        return None
+    except sqlite3.Error as e:
+        print(f"Error al obtener historia por ID: {e}")
+        return None
     finally:
         cerrar_conexion(conexion)
