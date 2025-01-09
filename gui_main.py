@@ -284,10 +284,10 @@ def mostrar_mensaje_inicial():
     # Crear marco desplazable para la tabla
     scroll_frame = ctk.CTkScrollableFrame(frame_derecha)
     scroll_frame.grid(row=1, column=0, sticky="nswe", padx=20, pady=10)
-    scroll_frame.grid_columnconfigure((0, 1, 2), weight=1)
+    scroll_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
     # Encabezados de la tabla
-    encabezados = ["Hora", "Paciente", "Motivo"]
+    encabezados = ["ID", "Hora", "Paciente", "Motivo"]
     for idx, encabezado in enumerate(encabezados):
         label_encabezado = ctk.CTkLabel(scroll_frame, text=encabezado, font=("Arial", 14, "bold"))
         label_encabezado.grid(row=0, column=idx, padx=10, pady=10, sticky="nsew")
@@ -297,14 +297,21 @@ def mostrar_mensaje_inicial():
 
     # Filas de la tabla
     for row_idx, cita in enumerate(citas, start=1):
-        label_hora = ctk.CTkLabel(scroll_frame, text=cita[0], font=("Arial", 12))  # Fecha y hora
-        label_hora.grid(row=row_idx, column=0, padx=10, pady=5, sticky="nsew")
+        label_id = ctk.CTkLabel(scroll_frame, text=cita["ID"], font=("Arial", 12))  # ID de la cita
+        label_id.grid(row=row_idx, column=0, padx=10, pady=5, sticky="nsew")
 
-        label_paciente = ctk.CTkLabel(scroll_frame, text=cita[1] if cita[1] else f"Desconocido ({cita[3]})", font=("Arial", 12))  # Nombre del paciente
-        label_paciente.grid(row=row_idx, column=1, padx=10, pady=5, sticky="nsew")
+        label_hora = ctk.CTkLabel(scroll_frame, text=cita["Hora"], font=("Arial", 12))  # Fecha y hora
+        label_hora.grid(row=row_idx, column=1, padx=10, pady=5, sticky="nsew")
 
-        label_motivo = ctk.CTkLabel(scroll_frame, text=cita[2], font=("Arial", 12))  # Motivo
-        label_motivo.grid(row=row_idx, column=2, padx=10, pady=5, sticky="nsew")
+        label_paciente = ctk.CTkLabel(scroll_frame, text=cita["Paciente"], font=("Arial", 12))  # Nombre del paciente
+        label_paciente.grid(row=row_idx, column=2, padx=10, pady=5, sticky="nsew")
+
+        label_motivo = ctk.CTkLabel(scroll_frame, text=cita["Motivo"], font=("Arial", 12))  # Motivo
+        label_motivo.grid(row=row_idx, column=3, padx=10, pady=5, sticky="nsew")
+
+
+# Ajusta el encabezado y las columnas para incluir "ID" en la vista de citas.
+
 
 mostrar_mensaje_inicial()
 

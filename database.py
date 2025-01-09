@@ -247,21 +247,30 @@ def agregar_cita(numero_identificacion, fecha_hora, motivo):
 # Función para obtener todas las citas
 def obtener_citas():
     conexion = conectar()
-    if conexion:
-        try:
-            cursor = conexion.cursor()
-            cursor.execute("""
-                SELECT Cita.fecha_hora, Paciente.nombre_completo, Cita.motivo, Cita.numero_identificacion
-                FROM Cita
-                LEFT JOIN Paciente ON Cita.numero_identificacion = Paciente.numero_identificacion
-            """)
-            resultados = cursor.fetchall()
-            return resultados
-        except sqlite3.Error as e:
-            print(f"Error al obtener citas: {e}")
-            return []
-        finally:
-            cerrar_conexion(conexion)
+    try:
+        cursor = conexion.cursor()
+        cursor.execute("""
+            SELECT Cita.id_cita, Cita.fecha_hora, Paciente.nombre_completo, Cita.motivo
+            FROM Cita
+            LEFT JOIN Paciente ON Cita.numero_identificacion = Paciente.numero_identificacion
+        """)
+        resultados = cursor.fetchall()
+        return [
+            {
+                "ID": r[0],
+                "Hora": r[1],
+                "Paciente": r[2] if r[2] else "Paciente no registrado",
+                "Motivo": r[3]
+            }
+            for r in resultados
+        ]
+    except sqlite3.Error as e:
+        print(f"Error al obtener citas: {e}")
+        return []
+    finally:
+        cerrar_conexion(conexion)
+
+
 
 
 
