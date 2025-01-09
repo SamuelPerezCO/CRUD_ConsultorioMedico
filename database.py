@@ -226,3 +226,52 @@ def buscar_id_paciente_por_nombre(nombre):
         return None
     finally:
         cerrar_conexion(conexion)
+
+
+# Función para agregar una nueva cita
+def agregar_cita(numero_identificacion, fecha_hora, motivo):
+    conexion = conectar()
+    if conexion:
+        try:
+            cursor = conexion.cursor()
+            cursor.execute("""
+                INSERT INTO Cita (numero_identificacion, fecha_hora, motivo)
+                VALUES (?, ?, ?)
+            """, (numero_identificacion, fecha_hora, motivo))
+            conexion.commit()
+        except sqlite3.Error as e:
+            print(f"Error al agregar cita: {e}")
+        finally:
+            cerrar_conexion(conexion)
+
+# Función para obtener todas las citas
+def obtener_citas():
+    conexion = conectar()
+    if conexion:
+        try:
+            cursor = conexion.cursor()
+            cursor.execute("SELECT * FROM Cita")
+            resultados = cursor.fetchall()
+            return resultados
+        except sqlite3.Error as e:
+            print(f"Error al obtener citas: {e}")
+            return []
+        finally:
+            cerrar_conexion(conexion)
+
+# Función para obtener citas por número de identificación
+def obtener_citas_por_paciente(numero_identificacion):
+    conexion = conectar()
+    if conexion:
+        try:
+            cursor = conexion.cursor()
+            cursor.execute("""
+                SELECT * FROM Cita WHERE numero_identificacion = ?
+            """, (numero_identificacion,))
+            resultados = cursor.fetchall()
+            return resultados
+        except sqlite3.Error as e:
+            print(f"Error al obtener citas: {e}")
+            return []
+        finally:
+            cerrar_conexion(conexion)

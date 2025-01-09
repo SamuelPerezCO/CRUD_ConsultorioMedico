@@ -260,17 +260,20 @@ def mostrar_mensaje_inicial():
     for idx, encabezado in enumerate(encabezados):
         label_encabezado = ctk.CTkLabel(scroll_frame, text=encabezado, font=("Arial", 14, "bold"))
         label_encabezado.grid(row=0, column=idx, padx=10, pady=10, sticky="nsew")
+# Obtener citas desde la base de datos
+    citas = obtener_citas()
 
     # Filas de la tabla
     for row_idx, cita in enumerate(citas, start=1):
-        label_hora = ctk.CTkLabel(scroll_frame, text=cita["Hora"], font=("Arial", 12))
+        label_hora = ctk.CTkLabel(scroll_frame, text=cita[2], font=("Arial", 12))  # cita[2] es fecha_hora
         label_hora.grid(row=row_idx, column=0, padx=10, pady=5, sticky="nsew")
 
-        label_paciente = ctk.CTkLabel(scroll_frame, text=cita["Paciente"], font=("Arial", 12))
+        label_paciente = ctk.CTkLabel(scroll_frame, text=cita[1], font=("Arial", 12))  # cita[1] es numero_identificacion
         label_paciente.grid(row=row_idx, column=1, padx=10, pady=5, sticky="nsew")
 
-        label_motivo = ctk.CTkLabel(scroll_frame, text=cita["Motivo"], font=("Arial", 12))
+        label_motivo = ctk.CTkLabel(scroll_frame, text=cita[3], font=("Arial", 12))  # cita[3] es motivo
         label_motivo.grid(row=row_idx, column=2, padx=10, pady=5, sticky="nsew")
+
 
 
 mostrar_mensaje_inicial()
@@ -298,7 +301,7 @@ def mostrar_crear_cita():
     menu_pacientes.grid(row=1, column=1, padx=20, pady=10, sticky="w")
 
     # Ingresar Hora
-    label_hora = ctk.CTkLabel(frame_derecha, text="Hora (HH:MM AM/PM):", font=("Arial", 14), anchor="w")
+    label_hora = ctk.CTkLabel(frame_derecha, text="Fecha y Hora (YYYY-MM-DD HH:MM):", font=("Arial", 14), anchor="w")
     label_hora.grid(row=2, column=0, padx=20, pady=10, sticky="e")
 
     entry_hora = ctk.CTkEntry(frame_derecha)
@@ -311,37 +314,42 @@ def mostrar_crear_cita():
     entry_motivo = ctk.CTkEntry(frame_derecha)
     entry_motivo.grid(row=3, column=1, padx=20, pady=10, sticky="w")
 
-    # Botón para guardar cita
+    # Botón para guardar la cita
     def guardar_cita():
-        paciente_seleccionado = pacientes_var.get()  # Obtiene el nombre del paciente seleccionado
-        hora = entry_hora.get().strip()
+        paciente_seleccionado = pacientes_var.get()
+        fecha_hora = entry_hora.get().strip()
         motivo = entry_motivo.get().strip()
 
-        if paciente_seleccionado == "Seleccionar paciente" or not hora or not motivo:
+        if paciente_seleccionado == "Seleccionar paciente" or not fecha_hora or not motivo:
             mensaje_error = ctk.CTkLabel(frame_derecha, text="Por favor, complete todos los campos.", font=("Arial", 14), fg_color="red")
             mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
             return
 
-        # Buscar el DNI del paciente directamente en la base de datos
-        dni_paciente = obtener_dni_paciente(paciente_seleccionado)
-        if not dni_paciente:
-            mensaje_error = ctk.CTkLabel(frame_derecha, text="Paciente no encontrado en la base de datos.", font=("Arial", 14), fg_color="red")
+        # Obtener el número de identificación del paciente seleccionado
+        numero_identificacion = next(
+            (p["DNI"] for p in pacientes if p["Nombre Completo"] == paciente_seleccionado), None
+        )
+
+        if numero_identificacion:
+            try:
+                # Guardar cita en la base de datos
+                agregar_cita(numero_identificacion, fecha_hora, motivo)
+                mostrar_mensaje_inicial()  # Regresar a la lista de citas
+            except Exception as e:
+                mensaje_error = ctk.CTkLabel(frame_derecha, text=f"Error: {e}", font=("Arial", 14), fg_color="red")
+                mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
+        else:
+            mensaje_error = ctk.CTkLabel(frame_derecha, text="Paciente no encontrado.", font=("Arial", 14), fg_color="red")
             mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
-            return
 
-        nueva_cita = (dni_paciente, hora, motivo)
-
-        try:
-            agregar_cita(nueva_cita)
-            print("Cita guardada correctamente en la base de datos.")
-        except Exception as e:
-            print(f"Error al guardar la cita: {e}")
-
-        actualizar_citas()  # Recarga las citas en la interfaz gráfica
-
-
-    btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cita", command=guardar_cita)
+    btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cita", font=("Arial", 14), command=guardar_cita)
     btn_guardar.grid(row=4, column=0, columnspan=2, pady=20)
+
+    # Botón para volver al menú principal
+    btn_volver = ctk.CTkButton(frame_derecha, text="Volver", font=("Arial", 14), command=mostrar_mensaje_inicial)
+    btn_volver.grid(row=5, column=0, columnspan=2, pady=10)
+
+
 
 # Función para mostrar el formulario de búsqueda (centrado)
 def mostrar_buscar_paciente():
