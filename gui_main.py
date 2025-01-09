@@ -41,8 +41,9 @@ btn_crear_cita = ctk.CTkButton(frame_izquierdo, text="Crear Cita", font=("Arial"
 btn_crear_cita.grid(row=3, column=0, padx=10, pady=20, sticky="n")
 
 btn_listar_pacientes = ctk.CTkButton(frame_izquierdo, text="Listar Pacientes", font=("Arial", 14),
-                                     width=170, height=50, corner_radius=15)
+                                     width=170, height=50, corner_radius=15, command=lambda:listar_pacientes())
 btn_listar_pacientes.grid(row=4, column=0, padx=10, pady=20, sticky="n")
+
 
 frame_izquierdo.grid_rowconfigure(4, weight=2)  # Espacio adicional para balancear
 
@@ -63,6 +64,36 @@ citas = [
     {"Hora": "11:30 AM", "Paciente": "María Gómez", "Motivo": "Chequeo anual"},
     {"Hora": "02:00 PM", "Paciente": "Carlos López", "Motivo": "Dolor de cabeza"}
 ]
+
+def listar_pacientes():
+    for widget in frame_derecha.winfo_children():
+        widget.destroy()
+
+    # Título de la vista
+    titulo = ctk.CTkLabel(frame_derecha, text="Lista de Pacientes", font=("Arial", 20, "bold"))
+    titulo.grid(row=0, column=0, pady=10, columnspan=2)
+
+    # Marco desplazable para la tabla
+    scroll_frame = ctk.CTkScrollableFrame(frame_derecha)
+    scroll_frame.grid(row=1, column=0, padx=20, pady=10, sticky="nsew")
+    scroll_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
+
+    # Encabezados de la tabla
+    encabezados = ["Nombre", "DNI", "Teléfono", "Correo Electrónico"]
+    for col_idx, encabezado in enumerate(encabezados):
+        label_encabezado = ctk.CTkLabel(scroll_frame, text=f"{encabezado}", font=("Arial", 14, "bold"))
+        label_encabezado.grid(row=0, column=col_idx, padx=10, pady=10)
+
+    # Obtener datos desde la base de datos
+    pacientes = obtener_pacientes()
+    for row_idx, paciente in enumerate(pacientes, start=1):
+        for col_idx, dato in enumerate([paciente[0], paciente[3], paciente[4], paciente[5]]):  # Seleccionamos campos necesarios
+            label_dato = ctk.CTkLabel(scroll_frame, text=f"{dato}", font=("Arial", 12))
+            label_dato.grid(row=row_idx, column=col_idx, padx=10, pady=5)
+
+    # Botón para volver
+    btn_volver = ctk.CTkButton(frame_derecha, text="Volver", command=mostrar_mensaje_inicial)
+    btn_volver.grid(row=2, column=0, columnspan=2, pady=20)
 
 
 def gestionar_historia_clinica(paciente):
