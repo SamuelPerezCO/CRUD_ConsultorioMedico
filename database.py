@@ -63,7 +63,7 @@ def agregar_paciente(datos_paciente):
                 INSERT INTO Paciente (
                     nombre_completo, fecha_nacimiento, genero, numero_identificacion, telefono,
                     correo_electronico, direccion, tipo_sangre, alergias, condiciones_medicas_preexistentes,
-                    medicamentos_actuales , nombre_contacto_emergencia, telefono_emergencia, relacion_paciente
+                    medicamentos_actuales, nombre_contacto_emergencia, telefono_emergencia, relacion_paciente
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, datos_paciente)
             conexion.commit()
@@ -163,18 +163,18 @@ def agregar_cita(datos_cita):
     finally:
         cerrar_conexion(conexion)
 
-# Obtener todas las citas
-def obtener_citas():
-    conexion = conectar()
-    try:
-        cursor = conexion.cursor()
-        cursor.execute("SELECT * FROM Cita")
-        return cursor.fetchall()
-    except sqlite3.Error as e:
-        print(f"Error al obtener citas: {e}")
-        return []
-    finally:
-        cerrar_conexion(conexion)
+# # Obtener todas las citas
+# def obtener_citas():
+#     conexion = conectar()
+#     try:
+#         cursor = conexion.cursor()
+#         cursor.execute("SELECT * FROM Cita")
+#         return cursor.fetchall()
+#     except sqlite3.Error as e:
+#         print(f"Error al obtener citas: {e}")
+#         return []
+#     finally:
+#         cerrar_conexion(conexion)
 
 # Actualizar una cita existente
 def actualizar_cita(id_cita, nuevos_datos):
@@ -250,7 +250,11 @@ def obtener_citas():
     if conexion:
         try:
             cursor = conexion.cursor()
-            cursor.execute("SELECT * FROM Cita")
+            cursor.execute("""
+                SELECT Cita.fecha_hora, Paciente.nombre_completo, Cita.motivo, Cita.numero_identificacion
+                FROM Cita
+                LEFT JOIN Paciente ON Cita.numero_identificacion = Paciente.numero_identificacion
+            """)
             resultados = cursor.fetchall()
             return resultados
         except sqlite3.Error as e:
@@ -258,6 +262,8 @@ def obtener_citas():
             return []
         finally:
             cerrar_conexion(conexion)
+
+
 
 # Función para obtener citas por número de identificación
 def obtener_citas_por_paciente(numero_identificacion):

@@ -273,18 +273,18 @@ def mostrar_mensaje_inicial():
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
-    frame_derecha.grid_rowconfigure(0, weight=0)  # Encabezado fijo
-    frame_derecha.grid_rowconfigure(1, weight=1)  # Espacio para la tabla
+    frame_derecha.grid_rowconfigure(0, weight=0)
+    frame_derecha.grid_rowconfigure(1, weight=1)
     frame_derecha.grid_columnconfigure(0, weight=1)
 
     # Encabezado principal
     titulo_citas = ctk.CTkLabel(frame_derecha, text="Citas de Hoy", font=("Arial", 20, "bold"))
-    titulo_citas.grid(row=0, column=0, pady=(10, 20))  # Espaciado abajo
+    titulo_citas.grid(row=0, column=0, pady=(10, 20))
 
     # Crear marco desplazable para la tabla
     scroll_frame = ctk.CTkScrollableFrame(frame_derecha)
     scroll_frame.grid(row=1, column=0, sticky="nswe", padx=20, pady=10)
-    scroll_frame.grid_columnconfigure((0, 1, 2), weight=1)  # Ajustar columnas
+    scroll_frame.grid_columnconfigure((0, 1, 2), weight=1)
 
     # Encabezados de la tabla
     encabezados = ["Hora", "Paciente", "Motivo"]
@@ -297,23 +297,14 @@ def mostrar_mensaje_inicial():
 
     # Filas de la tabla
     for row_idx, cita in enumerate(citas, start=1):
-        # Buscar el nombre del paciente basado en su DNI
-        paciente = buscar_paciente_por_dni(cita[1])  # `cita[1]` es el número de identificación
-        nombre_paciente = paciente["nombre_completo"] if paciente else "Desconocido"
-        texto_paciente = f"{nombre_paciente} ({cita[1]})"  # Combinar nombre y DNI
-
-        # Mostrar datos en la tabla
-        label_hora = ctk.CTkLabel(scroll_frame, text=cita[2], font=("Arial", 12))  # `cita[2]` es fecha_hora
+        label_hora = ctk.CTkLabel(scroll_frame, text=cita[0], font=("Arial", 12))  # Fecha y hora
         label_hora.grid(row=row_idx, column=0, padx=10, pady=5, sticky="nsew")
 
-        label_paciente = ctk.CTkLabel(scroll_frame, text=texto_paciente, font=("Arial", 12))
+        label_paciente = ctk.CTkLabel(scroll_frame, text=cita[1] if cita[1] else f"Desconocido ({cita[3]})", font=("Arial", 12))  # Nombre del paciente
         label_paciente.grid(row=row_idx, column=1, padx=10, pady=5, sticky="nsew")
 
-        label_motivo = ctk.CTkLabel(scroll_frame, text=cita[3], font=("Arial", 12))  # `cita[3]` es motivo
+        label_motivo = ctk.CTkLabel(scroll_frame, text=cita[2], font=("Arial", 12))  # Motivo
         label_motivo.grid(row=row_idx, column=2, padx=10, pady=5, sticky="nsew")
-
-
-
 
 mostrar_mensaje_inicial()
 
