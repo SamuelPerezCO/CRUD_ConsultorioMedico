@@ -1,5 +1,5 @@
 from database import agregar_paciente, buscar_paciente_por_dni, actualizar_paciente, eliminar_paciente_por_id, obtener_pacientes, obtener_historia_clinica, agregar_historia_clinica , buscar_id_paciente_por_nombre
-from database import agregar_cita , actualizar_cita , obtener_citas , buscar_paciente_por_dni,obtener_numero_identificacion_por_cita
+from database import agregar_cita , actualizar_cita , obtener_citas , buscar_paciente_por_dni,obtener_numero_identificacion_por_cita , eliminar_cita
 import customtkinter as ctk
 
 # Configuración básica de la aplicación
@@ -684,7 +684,6 @@ def mostrar_citas():
         mostrar_crear_cita()
 
     def formulario_actualizar_cita():
-        # Formulario para actualizar una cita existente
         for widget in frame_derecha.winfo_children():
             widget.destroy()
 
@@ -730,13 +729,10 @@ def mostrar_citas():
                 mensaje_error = ctk.CTkLabel(frame_derecha, text=f"Error: {e}", font=("Arial", 14), fg_color="red")
                 mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
 
-
         btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cambios", command=guardar_actualizacion)
         btn_guardar.grid(row=4, column=0, columnspan=2, pady=20)
 
-
-    def eliminar_cita():
-        # Formulario para eliminar una cita existente
+    def eliminar_cita_button():
         for widget in frame_derecha.winfo_children():
             widget.destroy()
 
@@ -773,11 +769,12 @@ def mostrar_citas():
     btn_actualizar = ctk.CTkButton(frame_derecha, text="Actualizar Cita", command=formulario_actualizar_cita)
     btn_actualizar.grid(row=1, column=1, pady=20, padx=20, sticky="w")
 
-    btn_eliminar = ctk.CTkButton(frame_derecha, text="Eliminar Cita", command=eliminar_cita)
-    btn_eliminar.grid(row=2, column=0,  pady=20, padx = 20, sticky="e")
+    btn_eliminar = ctk.CTkButton(frame_derecha, text="Eliminar Cita", command=eliminar_cita_button)
+    btn_eliminar.grid(row=2, column=0, pady=20, padx=20, sticky="e")
 
-    btn_ver_citas = ctk.CTkButton(frame_derecha, text = "Ver Citas" , command=mostrar_mensaje_inicial)
-    btn_ver_citas.grid(row=2 , column=1, pady=20 , padx = 20, sticky="w")
+    btn_ver_citas = ctk.CTkButton(frame_derecha, text="Ver Citas", command=mostrar_mensaje_inicial)
+    btn_ver_citas.grid(row=2, column=1, pady=20, padx=20, sticky="w")
+
 
 
 
