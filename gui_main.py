@@ -36,8 +36,8 @@ btn_buscar = ctk.CTkButton(frame_izquierdo, text="Buscar paciente", font=("Arial
                            width=170, height=50, corner_radius=15, command=lambda: mostrar_buscar_paciente())
 btn_buscar.grid(row=2, column=0, padx=10, pady=20, sticky="n")
 
-btn_crear_cita = ctk.CTkButton(frame_izquierdo, text="Crear Cita", font=("Arial", 14),
-                               width=170, height=50, corner_radius=15, command=lambda: mostrar_crear_cita())
+btn_crear_cita = ctk.CTkButton(frame_izquierdo, text="Citas", font=("Arial", 14),
+                               width=170, height=50, corner_radius=15, command=lambda: mostrar_citas())
 btn_crear_cita.grid(row=3, column=0, padx=10, pady=20, sticky="n")
 
 btn_listar_pacientes = ctk.CTkButton(frame_izquierdo, text="Listar Pacientes", font=("Arial", 14),
@@ -662,6 +662,111 @@ def obtener_dni_paciente(nombre):
     if not dni:
         print(f"No se encontró el DNI para el paciente: {nombre}")
     return dni
+
+def mostrar_citas():
+    for widget in frame_derecha.winfo_children():
+        widget.destroy()
+
+    frame_derecha.grid_rowconfigure((0, 1, 2, 3, 4), weight=1)
+    frame_derecha.grid_columnconfigure((0, 1), weight=1)
+
+    titulo_citas = ctk.CTkLabel(frame_derecha, text="Gestión de Citas", font=("Arial", 20, "bold"))
+    titulo_citas.grid(row=0, column=0, columnspan=2, pady=20)
+
+    def crear_cita():
+        mostrar_crear_cita()
+
+    def actualizar_cita():
+        # Formulario para actualizar una cita existente
+        for widget in frame_derecha.winfo_children():
+            widget.destroy()
+
+        titulo_actualizar = ctk.CTkLabel(frame_derecha, text="Actualizar Cita", font=("Arial", 20, "bold"))
+        titulo_actualizar.grid(row=0, column=0, columnspan=2, pady=20)
+
+        label_id_cita = ctk.CTkLabel(frame_derecha, text="ID de la Cita:", font=("Arial", 14))
+        label_id_cita.grid(row=1, column=0, padx=20, pady=10, sticky="e")
+
+        entry_id_cita = ctk.CTkEntry(frame_derecha)
+        entry_id_cita.grid(row=1, column=1, padx=20, pady=10, sticky="w")
+
+        label_nueva_fecha = ctk.CTkLabel(frame_derecha, text="Nueva Fecha y Hora (YYYY-MM-DD HH:MM):", font=("Arial", 14))
+        label_nueva_fecha.grid(row=2, column=0, padx=20, pady=10, sticky="e")
+
+        entry_nueva_fecha = ctk.CTkEntry(frame_derecha)
+        entry_nueva_fecha.grid(row=2, column=1, padx=20, pady=10, sticky="w")
+
+        label_nuevo_motivo = ctk.CTkLabel(frame_derecha, text="Nuevo Motivo:", font=("Arial", 14))
+        label_nuevo_motivo.grid(row=3, column=0, padx=20, pady=10, sticky="e")
+
+        entry_nuevo_motivo = ctk.CTkEntry(frame_derecha)
+        entry_nuevo_motivo.grid(row=3, column=1, padx=20, pady=10, sticky="w")
+
+        def guardar_actualizacion():
+            id_cita = entry_id_cita.get().strip()
+            nueva_fecha = entry_nueva_fecha.get().strip()
+            nuevo_motivo = entry_nuevo_motivo.get().strip()
+
+            if not id_cita or not nueva_fecha or not nuevo_motivo:
+                mensaje_error = ctk.CTkLabel(frame_derecha, text="Por favor, complete todos los campos.", font=("Arial", 14), fg_color="red")
+                mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
+                return
+
+            try:
+                # Actualizar la cita en la base de datos
+                actualizar_cita(id_cita, [None, nueva_fecha, nuevo_motivo])
+                mostrar_citas()
+            except Exception as e:
+                mensaje_error = ctk.CTkLabel(frame_derecha, text=f"Error: {e}", font=("Arial", 14), fg_color="red")
+                mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
+
+        btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cambios", command=guardar_actualizacion)
+        btn_guardar.grid(row=4, column=0, columnspan=2, pady=20)
+
+    def eliminar_cita():
+        # Formulario para eliminar una cita existente
+        for widget in frame_derecha.winfo_children():
+            widget.destroy()
+
+        titulo_eliminar = ctk.CTkLabel(frame_derecha, text="Eliminar Cita", font=("Arial", 20, "bold"))
+        titulo_eliminar.grid(row=0, column=0, columnspan=2, pady=20)
+
+        label_id_cita = ctk.CTkLabel(frame_derecha, text="ID de la Cita:", font=("Arial", 14))
+        label_id_cita.grid(row=1, column=0, padx=20, pady=10, sticky="e")
+
+        entry_id_cita = ctk.CTkEntry(frame_derecha)
+        entry_id_cita.grid(row=1, column=1, padx=20, pady=10, sticky="w")
+
+        def confirmar_eliminacion():
+            id_cita = entry_id_cita.get().strip()
+
+            if not id_cita:
+                mensaje_error = ctk.CTkLabel(frame_derecha, text="Por favor, ingrese un ID de cita.", font=("Arial", 14), fg_color="red")
+                mensaje_error.grid(row=3, column=0, columnspan=2, pady=10)
+                return
+
+            try:
+                eliminar_cita(id_cita)
+                mostrar_citas()
+            except Exception as e:
+                mensaje_error = ctk.CTkLabel(frame_derecha, text=f"Error: {e}", font=("Arial", 14), fg_color="red")
+                mensaje_error.grid(row=3, column=0, columnspan=2, pady=10)
+
+        btn_eliminar = ctk.CTkButton(frame_derecha, text="Eliminar", command=confirmar_eliminacion)
+        btn_eliminar.grid(row=2, column=0, columnspan=2, pady=20)
+
+    btn_crear = ctk.CTkButton(frame_derecha, text="Crear Cita", command=crear_cita)
+    btn_crear.grid(row=1, column=0, pady=20, padx=20, sticky="e")
+
+    btn_actualizar = ctk.CTkButton(frame_derecha, text="Actualizar Cita", command=actualizar_cita)
+    btn_actualizar.grid(row=1, column=1, pady=20, padx=20, sticky="w")
+
+    btn_eliminar = ctk.CTkButton(frame_derecha, text="Eliminar Cita", command=eliminar_cita)
+    btn_eliminar.grid(row=2, column=0,  pady=20, padx = 20, sticky="e")
+
+    btn_ver_citas = ctk.CTkButton(frame_derecha, text = "Ver Citas" , command=mostrar_mensaje_inicial)
+    btn_ver_citas.grid(row=2 , column=1, pady=20 , padx = 20, sticky="w")
+
 
 
 
