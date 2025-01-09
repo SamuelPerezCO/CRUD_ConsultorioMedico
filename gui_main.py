@@ -291,19 +291,27 @@ def mostrar_mensaje_inicial():
     for idx, encabezado in enumerate(encabezados):
         label_encabezado = ctk.CTkLabel(scroll_frame, text=encabezado, font=("Arial", 14, "bold"))
         label_encabezado.grid(row=0, column=idx, padx=10, pady=10, sticky="nsew")
-# Obtener citas desde la base de datos
+
+    # Obtener citas desde la base de datos
     citas = obtener_citas()
 
     # Filas de la tabla
     for row_idx, cita in enumerate(citas, start=1):
-        label_hora = ctk.CTkLabel(scroll_frame, text=cita[2], font=("Arial", 12))  # cita[2] es fecha_hora
+        # Buscar el nombre del paciente basado en su DNI
+        paciente = buscar_paciente_por_dni(cita[1])  # `cita[1]` es el número de identificación
+        nombre_paciente = paciente["nombre_completo"] if paciente else "Desconocido"
+        texto_paciente = f"{nombre_paciente} ({cita[1]})"  # Combinar nombre y DNI
+
+        # Mostrar datos en la tabla
+        label_hora = ctk.CTkLabel(scroll_frame, text=cita[2], font=("Arial", 12))  # `cita[2]` es fecha_hora
         label_hora.grid(row=row_idx, column=0, padx=10, pady=5, sticky="nsew")
 
-        label_paciente = ctk.CTkLabel(scroll_frame, text=cita[1], font=("Arial", 12))  # cita[1] es numero_identificacion
+        label_paciente = ctk.CTkLabel(scroll_frame, text=texto_paciente, font=("Arial", 12))
         label_paciente.grid(row=row_idx, column=1, padx=10, pady=5, sticky="nsew")
 
-        label_motivo = ctk.CTkLabel(scroll_frame, text=cita[3], font=("Arial", 12))  # cita[3] es motivo
+        label_motivo = ctk.CTkLabel(scroll_frame, text=cita[3], font=("Arial", 12))  # `cita[3]` es motivo
         label_motivo.grid(row=row_idx, column=2, padx=10, pady=5, sticky="nsew")
+
 
 
 
