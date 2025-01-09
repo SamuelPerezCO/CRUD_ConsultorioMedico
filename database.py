@@ -270,10 +270,6 @@ def obtener_citas():
     finally:
         cerrar_conexion(conexion)
 
-
-
-
-
 # Función para obtener citas por número de identificación
 def obtener_citas_por_paciente(numero_identificacion):
     conexion = conectar()
@@ -290,3 +286,13 @@ def obtener_citas_por_paciente(numero_identificacion):
             return []
         finally:
             cerrar_conexion(conexion)
+
+def obtener_numero_identificacion_por_cita(id_cita):
+    conexion = conectar()
+    try:
+        cursor = conexion.cursor()
+        cursor.execute("SELECT numero_identificacion FROM Cita WHERE id_cita = ?", (id_cita,))
+        resultado = cursor.fetchone()
+        return resultado[0] if resultado else None
+    finally:
+        cerrar_conexion(conexion)

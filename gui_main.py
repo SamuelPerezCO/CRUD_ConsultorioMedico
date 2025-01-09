@@ -1,5 +1,5 @@
 from database import agregar_paciente, buscar_paciente_por_dni, actualizar_paciente, eliminar_paciente_por_id, obtener_pacientes, obtener_historia_clinica, agregar_historia_clinica , buscar_id_paciente_por_nombre
-from database import agregar_cita , actualizar_cita , obtener_citas , buscar_paciente_por_dni
+from database import agregar_cita , actualizar_cita , obtener_citas , buscar_paciente_por_dni,obtener_numero_identificacion_por_cita
 import customtkinter as ctk
 
 # Configuración básica de la aplicación
@@ -683,7 +683,7 @@ def mostrar_citas():
     def crear_cita():
         mostrar_crear_cita()
 
-    def actualizar_cita():
+    def formulario_actualizar_cita():
         # Formulario para actualizar una cita existente
         for widget in frame_derecha.winfo_children():
             widget.destroy()
@@ -720,15 +720,20 @@ def mostrar_citas():
                 return
 
             try:
-                # Actualizar la cita en la base de datos
-                actualizar_cita(id_cita, [None, nueva_fecha, nuevo_motivo])
+                numero_identificacion = obtener_numero_identificacion_por_cita(id_cita)
+                if not numero_identificacion:
+                    raise ValueError("No se encontró el número de identificación para la cita.")
+                
+                actualizar_cita(id_cita, [numero_identificacion, nueva_fecha, nuevo_motivo])
                 mostrar_citas()
             except Exception as e:
                 mensaje_error = ctk.CTkLabel(frame_derecha, text=f"Error: {e}", font=("Arial", 14), fg_color="red")
                 mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
 
+
         btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cambios", command=guardar_actualizacion)
         btn_guardar.grid(row=4, column=0, columnspan=2, pady=20)
+
 
     def eliminar_cita():
         # Formulario para eliminar una cita existente
@@ -765,7 +770,7 @@ def mostrar_citas():
     btn_crear = ctk.CTkButton(frame_derecha, text="Crear Cita", command=crear_cita)
     btn_crear.grid(row=1, column=0, pady=20, padx=20, sticky="e")
 
-    btn_actualizar = ctk.CTkButton(frame_derecha, text="Actualizar Cita", command=actualizar_cita)
+    btn_actualizar = ctk.CTkButton(frame_derecha, text="Actualizar Cita", command=formulario_actualizar_cita)
     btn_actualizar.grid(row=1, column=1, pady=20, padx=20, sticky="w")
 
     btn_eliminar = ctk.CTkButton(frame_derecha, text="Eliminar Cita", command=eliminar_cita)
