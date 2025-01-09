@@ -1,4 +1,5 @@
-from database import agregar_paciente, buscar_paciente_por_dni, actualizar_paciente, eliminar_paciente_por_id, obtener_pacientes, obtener_historia_clinica, agregar_historia_clinica
+from database import agregar_paciente, buscar_paciente_por_dni, actualizar_paciente, eliminar_paciente_por_id, obtener_pacientes, obtener_historia_clinica, agregar_historia_clinica , buscar_id_paciente_por_nombre
+from database import agregar_cita , actualizar_cita , obtener_citas , buscar_paciente_por_dni
 import customtkinter as ctk
 
 # Configuración básica de la aplicación
@@ -62,6 +63,7 @@ citas = [
     {"Hora": "11:30 AM", "Paciente": "María Gómez", "Motivo": "Chequeo anual"},
     {"Hora": "02:00 PM", "Paciente": "Carlos López", "Motivo": "Dolor de cabeza"}
 ]
+
 
 def gestionar_historia_clinica(paciente):
     for widget in frame_derecha.winfo_children():
@@ -311,7 +313,7 @@ def mostrar_crear_cita():
 
     # Botón para guardar cita
     def guardar_cita():
-        paciente_seleccionado = pacientes_var.get()
+        paciente_seleccionado = pacientes_var.get()  # Obtiene el nombre del paciente seleccionado
         hora = entry_hora.get().strip()
         motivo = entry_motivo.get().strip()
 
@@ -320,13 +322,23 @@ def mostrar_crear_cita():
             mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
             return
 
-        nueva_cita = {
-            "Hora": hora,
-            "Paciente": paciente_seleccionado,
-            "Motivo": motivo
-        }
-        citas.append(nueva_cita)
-        mostrar_mensaje_inicial()  # Regresar a la lista de citas
+        # Buscar el DNI del paciente directamente en la base de datos
+        dni_paciente = obtener_dni_paciente(paciente_seleccionado)
+        if not dni_paciente:
+            mensaje_error = ctk.CTkLabel(frame_derecha, text="Paciente no encontrado en la base de datos.", font=("Arial", 14), fg_color="red")
+            mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
+            return
+
+        nueva_cita = (dni_paciente, hora, motivo)
+
+        try:
+            agregar_cita(nueva_cita)
+            print("Cita guardada correctamente en la base de datos.")
+        except Exception as e:
+            print(f"Error al guardar la cita: {e}")
+
+        actualizar_citas()  # Recarga las citas en la interfaz gráfica
+
 
     btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cita", command=guardar_cita)
     btn_guardar.grid(row=4, column=0, columnspan=2, pady=20)
@@ -369,6 +381,26 @@ def mostrar_buscar_paciente():
     # Botón para buscar al paciente
     btn_buscar = ctk.CTkButton(frame_derecha, text="Buscar", font=("Arial", 14), command=buscar_paciente)
     btn_buscar.grid(row=2, column=0, columnspan=2, pady=20)
+
+def actualizar_citas():
+    global citas  # Aseguramos que estamos trabajando con la lista global `citas`
+
+    # Limpiar la lista actual
+    citas.clear()
+
+    # Obtener las citas desde la base de datos
+    citas_db = obtener_citas()
+
+    # Convertir las citas en un formato legible para la interfaz gráfica
+    for cita in citas_db:
+        citas.append({
+            "Hora": cita[2],  # Suponiendo que la hora está en la posición 2 de la tupla
+            "Paciente": buscar_paciente_por_dni(cita[1]),  # Convertir ID en nombre
+            "Motivo": cita[3],  # Suponiendo que el motivo está en la posición 3
+        })
+
+    # Recargar la tabla gráfica
+    mostrar_mensaje_inicial()
 
 
 # Función para mostrar la información del paciente
@@ -586,6 +618,13 @@ def mostrar_formulario():
     btn_guardar.grid(row=len(campos)+1, column=0, columnspan=2, pady=20)
 
     frame_derecha.grid_columnconfigure(1, weight=1)
+
+def obtener_dni_paciente(nombre):
+    dni = buscar_id_paciente_por_nombre(nombre)
+    if not dni:
+        print(f"No se encontró el DNI para el paciente: {nombre}")
+    return dni
+
 
 
 # Ejecutar la aplicación

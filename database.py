@@ -146,3 +146,83 @@ def buscar_paciente_por_dni(dni):
         finally:
             cerrar_conexion(conexion)
 
+# Crear una nueva cita
+def agregar_cita(datos_cita):
+    conexion = conectar()
+    try:
+        cursor = conexion.cursor()
+        cursor.execute("""
+            INSERT INTO Cita (
+                numero_identificacion, fecha_hora, motivo
+            ) VALUES (?, ?, ?)
+        """, datos_cita)
+        conexion.commit()
+        print("Cita agregada exitosamente.")
+    except sqlite3.Error as e:
+        print(f"Error al agregar cita: {e}")
+    finally:
+        cerrar_conexion(conexion)
+
+# Obtener todas las citas
+def obtener_citas():
+    conexion = conectar()
+    try:
+        cursor = conexion.cursor()
+        cursor.execute("SELECT * FROM Cita")
+        return cursor.fetchall()
+    except sqlite3.Error as e:
+        print(f"Error al obtener citas: {e}")
+        return []
+    finally:
+        cerrar_conexion(conexion)
+
+# Actualizar una cita existente
+def actualizar_cita(id_cita, nuevos_datos):
+    conexion = conectar()
+    try:
+        cursor = conexion.cursor()
+        cursor.execute("""
+            UPDATE Cita
+            SET 
+                numero_identificacion = ?, fecha_hora = ?, motivo = ?
+            WHERE id_cita = ?
+        """, (*nuevos_datos, id_cita))
+        conexion.commit()
+        print("Cita actualizada exitosamente.")
+    except sqlite3.Error as e:
+        print(f"Error al actualizar cita: {e}")
+    finally:
+        cerrar_conexion(conexion)
+
+# Eliminar una cita
+def eliminar_cita(id_cita):
+    conexion = conectar()
+    try:
+        cursor = conexion.cursor()
+        cursor.execute("DELETE FROM Cita WHERE id_cita = ?", (id_cita,))
+        conexion.commit()
+        print("Cita eliminada exitosamente.")
+    except sqlite3.Error as e:
+        print(f"Error al eliminar cita: {e}")
+    finally:
+        cerrar_conexion(conexion)
+        
+
+def buscar_id_paciente_por_nombre(nombre):
+    conexion = conectar()
+    try:
+        cursor = conexion.cursor()
+        cursor.execute("""
+            SELECT numero_identificacion 
+            FROM Paciente 
+            WHERE nombre_completo = ?
+        """, (nombre,))
+        resultado = cursor.fetchone()
+        if resultado:
+            return resultado[0]  # Devuelve el número de identificación
+        return None  # Si no encuentra resultados
+    except sqlite3.Error as e:
+        print(f"Error al buscar ID del paciente: {e}")
+        return None
+    finally:
+        cerrar_conexion(conexion)
