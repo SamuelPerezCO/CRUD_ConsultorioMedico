@@ -11,8 +11,8 @@ ctk.set_default_color_theme("blue")
 # Crear ventana principal
 app = ctk.CTk()
 app.title("Consultorio Médico")
-app.geometry("1300x800")  # Tamaño inicial
-app.minsize(1300, 800)  # Tamaño mínimo
+app.geometry("1500x1000")  # Tamaño inicial
+app.minsize(1500, 1000)  # Tamaño mínimo
 
 # Configurar diseño de la ventana
 app.grid_rowconfigure(0, weight=1)
@@ -875,7 +875,7 @@ def mostrar_formulario():
         "Nombre Contacto de Emergencia",
         "Teléfono de Emergencia",
         "Relación con el Paciente",
-        "Historia Clinica"
+        "Historia Clinica",
     ]
 
     entries = {}
@@ -956,6 +956,8 @@ def mostrar_formulario():
     btn_guardar.grid(row=len(campos)+1, column=0, columnspan=2, pady=20)
 
     frame_derecha.grid_columnconfigure(1, weight=1)
+
+    
 
 def obtener_dni_paciente(nombre):
     """
