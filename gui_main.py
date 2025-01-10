@@ -69,6 +69,7 @@ def listar_pacientes():
         None
     """
     logger.debug("Entre en listar pacientes")
+    
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -684,7 +685,8 @@ def mostrar_informacion_paciente(paciente, editable=False):
         "Medicamentos Actuales": paciente["medicamentos_actuales"],
         "Nombre Contacto de Emergencia": paciente["nombre_contacto_emergencia"],
         "Teléfono de Emergencia": paciente["telefono_emergencia"],
-        "Relación con el Paciente": paciente["relacion_paciente"]
+        "Relación con el Paciente": paciente["relacion_paciente"],
+        "Historia Clinica":paciente["historia_clinica"]
     }
 
     labels = {}
@@ -819,8 +821,8 @@ def mostrar_informacion_paciente(paciente, editable=False):
     btn_editar = ctk.CTkButton(botones_frame, text="Editar Información", command=lambda: habilitar_edicion(paciente))
     btn_editar.grid(row=0, column=0, padx=10)
 
-    btn_historia = ctk.CTkButton(botones_frame, text="Historia Clínica", command=lambda: gestionar_historia_clinica(paciente))
-    btn_historia.grid(row=0, column=1, padx=10)
+    # btn_historia = ctk.CTkButton(botones_frame, text="Historia Clínica", command=lambda: gestionar_historia_clinica(paciente))
+    # btn_historia.grid(row=0, column=1, padx=10)
 
     btn_crear_cita = ctk.CTkButton(botones_frame, text="Crear Cita", command=ir_a_crear_cita)
     btn_crear_cita.grid(row=0, column=2, padx=10)
@@ -872,7 +874,8 @@ def mostrar_formulario():
         "Medicamentos Actuales",
         "Nombre Contacto de Emergencia",
         "Teléfono de Emergencia",
-        "Relación con el Paciente"
+        "Relación con el Paciente",
+        "Historia Clinica"
     ]
 
     entries = {}
