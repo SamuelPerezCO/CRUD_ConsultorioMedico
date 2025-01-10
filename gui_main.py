@@ -1,7 +1,9 @@
 from database import agregar_paciente, buscar_paciente_por_dni, actualizar_paciente, eliminar_paciente_por_id, obtener_pacientes, obtener_historia_clinica, agregar_historia_clinica , buscar_id_paciente_por_nombre
 from database import agregar_cita , actualizar_cita , obtener_citas , buscar_paciente_por_dni,obtener_numero_identificacion_por_cita , eliminar_cita
+from logger import logger
 import customtkinter as ctk
 
+logger.debug("INICIO")
 # Configuración básica de la aplicación
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
@@ -66,6 +68,7 @@ def listar_pacientes():
     Returns:
         None
     """
+    logger.debug("Entre en listar pacientes")
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -110,6 +113,9 @@ def gestionar_historia_clinica(paciente):
     Returns:
         None
     """
+
+    logger.debug(f"Entre en gestionar_historia_clinica y el paciente es {paciente}")
+
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -149,6 +155,9 @@ def gestionar_historia_clinica(paciente):
         Returns:
             None
         """
+
+        logger.debug("Entre en agregar_registro")
+
         for widget in frame_derecha.winfo_children():
             widget.destroy()
 
@@ -189,6 +198,9 @@ def gestionar_historia_clinica(paciente):
             Raises:
                 Exception: Si ocurre un error durante la inserción del registro.
             """
+
+            logger.debug("Entre en guardar_nuevo_registro")
+
             nuevo_registro = {
                 "Fecha": entries["Fecha (DD/MM/AAAA)"].get(),
                 "Motivo": entries["Motivo"].get(),
@@ -202,6 +214,7 @@ def gestionar_historia_clinica(paciente):
             except Exception as e:
                 mensaje_error = ctk.CTkLabel(frame_derecha, text=f"Error: {e}", font=("Arial", 14), fg_color="red")
                 mensaje_error.grid(row=len(campos_registro) + 1, column=0, columnspan=2, pady=10)
+                logger.error(f"Error en guardar_nuevo_registro {e}")
 
         # Botón para guardar el nuevo registro
         btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar", font=("Arial", 14), command=guardar_nuevo_registro)
@@ -230,6 +243,8 @@ def mostrar_historia_clinica(paciente):
     Returns:
         None
     """
+
+    logger.info(f"Entre en mostrar_historia_clinica con paciente {paciente}")
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -269,6 +284,9 @@ def mostrar_historia_clinica(paciente):
         Returns:
             None
         """
+
+        logger.debug("Entre en agregar_registro")
+
         for widget in frame_derecha.winfo_children():
             widget.destroy()
 
@@ -306,6 +324,9 @@ def mostrar_historia_clinica(paciente):
             Returns:
                 None
             """
+
+            logger.debug("Entre en guardar_registro")
+
             nuevo_registro = {campo: entrada.get() for campo, entrada in entries.items()}
             nuevo_registro["Tratamiento"] = text_tratamiento.get("1.0", "end-1c")  # Obtener texto completo del área
             if "Historia Clínica" not in paciente:
@@ -343,6 +364,9 @@ def mostrar_mensaje_inicial():
     Returns:
         None
     """
+
+    logger.debug("Entre en mostrar_mensaje_inicial")
+
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -386,7 +410,6 @@ def mostrar_mensaje_inicial():
         label_motivo = ctk.CTkLabel(scroll_frame, text=cita["Motivo"], font=("Arial", 12))
         label_motivo.grid(row=row_idx, column=3, padx=10, pady=5, sticky="nsew")
 
-
 # Ajusta el encabezado y las columnas para incluir "ID" en la vista de citas.
 mostrar_mensaje_inicial()
 
@@ -404,6 +427,9 @@ def mostrar_crear_cita():
     Returns:
         None
     """
+
+    logger.debug("Entre en mostrar_crear_cita")
+
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -457,6 +483,9 @@ def mostrar_crear_cita():
         Raises:
             Exception: Si ocurre un error al guardar la cita en la base de datos.
         """
+
+        logger.debug("Entre en guardar_cita")
+
         paciente_seleccionado = pacientes_var.get()
         fecha_hora = entry_hora.get().strip()
         motivo = entry_motivo.get().strip()
@@ -464,6 +493,7 @@ def mostrar_crear_cita():
         if paciente_seleccionado == "Seleccionar paciente" or not fecha_hora or not motivo:
             mensaje_error = ctk.CTkLabel(frame_derecha, text="Por favor, complete todos los campos.", font=("Arial", 14), fg_color="red")
             mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
+            logger.error("No se completaron todos los campos")
             return
 
         # Obtener el número de identificación del paciente seleccionado
@@ -479,9 +509,11 @@ def mostrar_crear_cita():
             except Exception as e:
                 mensaje_error = ctk.CTkLabel(frame_derecha, text=f"Error: {e}", font=("Arial", 14), fg_color="red")
                 mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
+                logger.error(f"Error en guardar_cita: {e}")
         else:
             mensaje_error = ctk.CTkLabel(frame_derecha, text="Paciente no encontrado.", font=("Arial", 14), fg_color="red")
             mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
+            logger.error("Paciente no encontrado")
 
     btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cita", font=("Arial", 14), command=guardar_cita)
     btn_guardar.grid(row=4, column=0, columnspan=2, pady=20)
@@ -505,6 +537,9 @@ def mostrar_buscar_paciente():
     Returns:
         None
     """
+
+    logger.debug("Entre en mostrar_buscar_paciente")
+
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -540,10 +575,14 @@ def mostrar_buscar_paciente():
         Raises:
             None
         """
+
+        logger.debug("Entre en buscar paciente")
+
         dni = entry_dni.get().strip()
         if not dni:
             mensaje_error = ctk.CTkLabel(frame_derecha, text="Por favor, ingrese un número de identificación válido.", font=("Arial", 14), fg_color="red")
             mensaje_error.grid(row=3, column=0, columnspan=2, pady=10)
+            logger.error("Ingreso un numero de identificacion no valido")
             return
         
         # Buscar el paciente en la base de datos
@@ -553,6 +592,7 @@ def mostrar_buscar_paciente():
         else:
             mensaje_error = ctk.CTkLabel(frame_derecha, text="Paciente no encontrado.", font=("Arial", 14), fg_color="red")
             mensaje_error.grid(row=3, column=0, columnspan=2, pady=10)
+            logger.error("Paciente no encontrado")
 
     # Botón para buscar al paciente
     btn_buscar = ctk.CTkButton(frame_derecha, text="Buscar", font=("Arial", 14), command=buscar_paciente)
@@ -575,6 +615,9 @@ def actualizar_citas():
     Raises:
         None
     """
+
+    logger.debug("entre en actualizar_citas")
+
     global citas  # Aseguramos que estamos trabajando con la lista global `citas`
 
     # Limpiar la lista actual
@@ -609,6 +652,9 @@ def mostrar_informacion_paciente(paciente, editable=False):
     Returns:
         None
     """
+
+    logger.debug("Entre en mostrar_informacion_paciente")
+
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -655,6 +701,9 @@ def mostrar_informacion_paciente(paciente, editable=False):
         Returns:
             None
         """
+
+        logger.debug(f"Entre en habilitar edicion con el paciente {paciente}")
+
         for widget in labels.values():
             widget.grid_forget()
 
@@ -680,6 +729,9 @@ def mostrar_informacion_paciente(paciente, editable=False):
         Returns:
             None
         """
+
+        logger.debug(f"Entre en guardar_cambios con el paciente {paciente}")
+
         nuevos_datos = {campo: entry.get() for campo, entry in entries.items()}  # Extraer datos de las entradas
 
         try:
@@ -696,10 +748,12 @@ def mostrar_informacion_paciente(paciente, editable=False):
                 mostrar_informacion_paciente(paciente_actualizado, editable=True)
             else:
                 print("Error: No se pudo obtener el paciente actualizado.")
+                logger.error("No se pudo obtener el paciente actualizado")
 
         except Exception as e:
             mensaje = ctk.CTkLabel(frame_derecha, text=f"Error al guardar cambios: {str(e)}", font=("Arial", 14), fg_color="red")
             mensaje.grid(row=len(campos) + 2, column=0, columnspan=2, pady=10)
+            logger.error(f"Error en guardar_cambios:{e}")
 
     def ir_a_crear_cita():
         """
@@ -711,6 +765,9 @@ def mostrar_informacion_paciente(paciente, editable=False):
         Returns:
             None
         """
+
+        logger.debug("Entre en ir_a_crear_cita")
+
         mostrar_crear_cita()
         pacientes_var.set(paciente["nombre_completo"])
 
@@ -724,11 +781,17 @@ def mostrar_informacion_paciente(paciente, editable=False):
         Returns:
             None
         """
+
+        logger.debug("Entre en eliminar paciente")
+
         try:
             confirmar = ctk.CTkLabel(frame_derecha, text="¿Está seguro de eliminar este paciente?", font=("Arial", 14), fg_color="yellow")
             confirmar.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
 
             def confirmar_eliminacion():
+
+                logger.info("Entre en confirmar_eliminacion")
+
                 eliminar_paciente_por_id(paciente["numero_identificacion"])
                 mostrar_buscar_paciente()
 
@@ -740,6 +803,7 @@ def mostrar_informacion_paciente(paciente, editable=False):
         except Exception as e:
             mensaje = ctk.CTkLabel(frame_derecha, text=f"Error al eliminar paciente: {str(e)}", font=("Arial", 14), fg_color="red")
             mensaje.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
+            logger.error(f"Error al eliminar paciente {paciente}")
 
     # Botones de acción
     botones_frame = ctk.CTkFrame(frame_derecha)
@@ -778,6 +842,9 @@ def mostrar_formulario():
     Raises:
         None
     """
+
+    logger.debug("Entre en mostrar_formulario")
+
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -836,6 +903,9 @@ def mostrar_formulario():
         Raises:
             Exception: Si ocurre un error al guardar los datos o al interactuar con la base de datos.
         """
+
+        logger.debug("Entre en guardar_paciente")
+
         datos_paciente = [
             entrada.get() if not isinstance(entrada, ctk.StringVar) else entrada.get() 
             for entrada in entries.values()
@@ -870,6 +940,7 @@ def mostrar_formulario():
         except Exception as e:
             mensaje = ctk.CTkLabel(frame_derecha, text=f"Error: {str(e)}", font=("Arial", 14), fg_color="red")
             mensaje.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
+            logger.error(f"Error en guardar_paciente: {e}")
 
     btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar", command=guardar_paciente)
     btn_guardar.grid(row=len(campos)+1, column=0, columnspan=2, pady=20)
@@ -890,6 +961,9 @@ def obtener_dni_paciente(nombre):
     Raises:
         None
     """
+
+    logger.debug(f"Entre en obtener_dni_paciente {nombre}")
+
     dni = buscar_id_paciente_por_nombre(nombre)
     if not dni:
         print(f"No se encontró el DNI para el paciente: {nombre}")
@@ -909,6 +983,9 @@ def mostrar_citas():
     Raises:
         None
     """
+
+    logger.debug("Entre en mostrar_citas")
+
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -928,6 +1005,8 @@ def mostrar_citas():
         Returns:
             None
         """
+        logger.debug("Entre en crear_cita")
+
         mostrar_crear_cita()
 
     def formulario_actualizar_cita():
@@ -940,6 +1019,9 @@ def mostrar_citas():
         Returns:
             None
         """
+
+        logger.debug("Entre en formulario_actualizar_cita")
+
         for widget in frame_derecha.winfo_children():
             widget.destroy()
 
@@ -977,6 +1059,9 @@ def mostrar_citas():
             Raises:
                 ValueError: Si no se encuentra el número de identificación para la cita.
             """
+
+            logger.debug("Entre en guardar_actualizacion")
+
             id_cita = entry_id_cita.get().strip()
             nueva_fecha = entry_nueva_fecha.get().strip()
             nuevo_motivo = entry_nuevo_motivo.get().strip()
@@ -996,6 +1081,7 @@ def mostrar_citas():
             except Exception as e:
                 mensaje_error = ctk.CTkLabel(frame_derecha, text=f"Error: {e}", font=("Arial", 14), fg_color="red")
                 mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
+                logger.error(f"Error en guardar_actualizacion {e}")
 
         btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cambios", command=guardar_actualizacion)
         btn_guardar.grid(row=4, column=0, columnspan=2, pady=20)
@@ -1010,6 +1096,9 @@ def mostrar_citas():
         Returns:
             None
         """
+
+        logger.debug("Entre en eliminar_cita_button")
+
         for widget in frame_derecha.winfo_children():
             widget.destroy()
 
@@ -1048,6 +1137,7 @@ def mostrar_citas():
             except Exception as e:
                 mensaje_error = ctk.CTkLabel(frame_derecha, text=f"Error: {e}", font=("Arial", 14), fg_color="red")
                 mensaje_error.grid(row=3, column=0, columnspan=2, pady=10)
+                logger.error(f"Error en confirmar_eliminacion {e}")
 
         btn_eliminar = ctk.CTkButton(frame_derecha, text="Eliminar", command=confirmar_eliminacion)
         btn_eliminar.grid(row=2, column=0, columnspan=2, pady=20)

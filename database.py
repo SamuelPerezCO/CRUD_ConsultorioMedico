@@ -163,19 +163,6 @@ def agregar_cita(datos_cita):
     finally:
         cerrar_conexion(conexion)
 
-# # Obtener todas las citas
-# def obtener_citas():
-#     conexion = conectar()
-#     try:
-#         cursor = conexion.cursor()
-#         cursor.execute("SELECT * FROM Cita")
-#         return cursor.fetchall()
-#     except sqlite3.Error as e:
-#         print(f"Error al obtener citas: {e}")
-#         return []
-#     finally:
-#         cerrar_conexion(conexion)
-
 # Actualizar una cita existente
 def actualizar_cita(id_cita, nuevos_datos):
     conexion = conectar()
