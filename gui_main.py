@@ -1,9 +1,10 @@
 from database import agregar_paciente, buscar_paciente_por_dni, actualizar_paciente, eliminar_paciente_por_id, obtener_pacientes, obtener_historia_clinica, agregar_historia_clinica , buscar_id_paciente_por_nombre
 from database import agregar_cita , actualizar_cita , obtener_citas , buscar_paciente_por_dni,obtener_numero_identificacion_por_cita , eliminar_cita
-from logger import logger
+from logger import logger , cerrar_log
 import customtkinter as ctk
 
 logger.debug("INICIO")
+cerrar_log()
 # Configuración básica de la aplicación
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
@@ -961,7 +962,7 @@ def mostrar_formulario():
 
             # Mostrar la información del paciente recién creado
             mostrar_informacion_paciente(nuevo_paciente)
-            
+
         except Exception as e:
             mensaje = ctk.CTkLabel(frame_derecha, text=f"Error: {str(e)}", font=("Arial", 14), fg_color="red")
             mensaje.grid(row=len(campos) + 2, column=0, columnspan=2, pady=10)

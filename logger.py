@@ -37,3 +37,13 @@ file_handler.setFormatter(formatter)
 # Agregar manejadores al logger
 logger.addHandler(console_handler)
 logger.addHandler(file_handler)
+
+
+def cerrar_log():
+    """Cierra el log al iniciar la aplicación pero mantiene el registro activo."""
+    import logging
+    logger = logging.getLogger()
+    for handler in logger.handlers:
+        if isinstance(handler, logging.StreamHandler):
+            logger.removeHandler(handler)
+    logger.info("Log de ventana cerrado pero sigue registrando en archivos o configuraciones activas.")
