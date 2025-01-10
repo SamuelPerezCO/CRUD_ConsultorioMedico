@@ -2,6 +2,19 @@ from db_connector import conectar, cerrar_conexion
 import sqlite3
 
 def agregar_historia_clinica(dni_paciente, registro):
+    """
+    Agrega un nuevo registro de historia clínica para un paciente dado su DNI.
+
+    Args:
+        dni_paciente (str): Número de identificación del paciente.
+        registro (dict): Diccionario con los detalles del registro, incluyendo Fecha, Motivo, Diagnóstico y Tratamiento.
+
+    Returns:
+        None
+
+    Raises:
+        sqlite3.Error: Si ocurre un error al insertar el registro en la base de datos.
+    """
     conexion = conectar()
     try:
         cursor = conexion.cursor()
@@ -10,12 +23,16 @@ def agregar_historia_clinica(dni_paciente, registro):
             VALUES (?, ?, ?, ?, ?)
         """, (
             dni_paciente,
-            registro["Fecha"],
-            registro["Motivo"],
-            registro["Diagnóstico"],
-            registro["Tratamiento"]
+            registro.get("Fecha"),
+            registro.get("Motivo"),
+            registro.get("Diagnóstico"),
+            registro.get("Tratamiento")
         ))
         conexion.commit()
+        print("Registro de historia clínica agregado correctamente.")
+    except sqlite3.Error as e:
+        print(f"Error al agregar registro de historia clínica: {e}")
+        raise
     finally:
         cerrar_conexion(conexion)
 

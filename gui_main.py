@@ -119,6 +119,13 @@ def gestionar_historia_clinica(paciente):
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
+    # Validar si el diccionario 'paciente' contiene la clave esperada
+    if 'Nombre Completo' not in paciente:
+        logger.error("El diccionario del paciente no contiene la clave 'Nombre Completo'")
+        mensaje_error = ctk.CTkLabel(frame_derecha, text="Error: Información del paciente incompleta.", font=("Arial", 14), fg_color="red")
+        mensaje_error.grid(row=0, column=0, pady=20)
+        return
+
     # Título principal
     titulo = ctk.CTkLabel(frame_derecha, text=f"Historia Clínica - {paciente['Nombre Completo']}", font=("Arial", 20, "bold"))
     titulo.grid(row=0, column=0, columnspan=2, pady=20)
@@ -968,7 +975,6 @@ def obtener_dni_paciente(nombre):
     if not dni:
         print(f"No se encontró el DNI para el paciente: {nombre}")
     return dni
-
 
 def mostrar_citas():
     """
