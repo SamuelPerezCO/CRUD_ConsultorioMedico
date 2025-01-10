@@ -916,24 +916,27 @@ def mostrar_formulario():
     def guardar_paciente():
         """
         Guarda los datos ingresados en el formulario en la base de datos y muestra la información del paciente.
-
-        Args:
-            None
-
-        Returns:
-            None
         """
         logger.debug("Entre en guardar_paciente")
 
-        datos_paciente = [
-            entrada.get() if not isinstance(entrada, ctk.StringVar) else entrada.get()
-            for entrada in entries.values()
-        ]
-        datos_paciente[-1] = text_historia_clinica.get("1.0", "end-1c")  # Extraer texto del área de texto
+        # Iterar sobre las entradas y obtener sus valores
+        datos_paciente = []
+        for campo, entrada in entries.items():
+            if isinstance(entrada, ctk.StringVar):  # Caso de OptionMenu
+                datos_paciente.append(entrada.get())
+            elif isinstance(entrada, ctk.CTkTextbox):  # Caso de CTkTextbox
+                datos_paciente.append(entrada.get("1.0", "end-1c"))  # Obtener todo el texto
+            else:  # Caso de CTkEntry
+                datos_paciente.append(entrada.get())
+        
+        # Procesar Historia Clínica por separado si está en el formulario
+        if "Historia Clínica" in entries:
+            datos_paciente.append(entries["Historia Clínica"].get("1.0", "end-1c"))
+
         try:
             agregar_paciente(datos_paciente)  # Guardar en la base de datos
 
-            # Recargar la lista de pacientes desde la base de datos
+            # Actualizar la lista de pacientes
             global pacientes
             pacientes = [{"DNI": row[3], "Nombre Completo": row[0], "Teléfono": row[4], "Correo Electrónico": row[5]} for row in obtener_pacientes()]
 
@@ -953,15 +956,17 @@ def mostrar_formulario():
                 "nombre_contacto_emergencia": datos_paciente[11],
                 "telefono_emergencia": datos_paciente[12],
                 "relacion_paciente": datos_paciente[13],
-                "historia_clinica": datos_paciente[14]
+                "historia_clinica": datos_paciente[14] if len(datos_paciente) > 14 else None
             }
 
             # Mostrar la información del paciente recién creado
             mostrar_informacion_paciente(nuevo_paciente)
+            
         except Exception as e:
             mensaje = ctk.CTkLabel(frame_derecha, text=f"Error: {str(e)}", font=("Arial", 14), fg_color="red")
             mensaje.grid(row=len(campos) + 2, column=0, columnspan=2, pady=10)
             logger.error(f"Error en guardar_paciente: {e}")
+
 
     btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar", command=guardar_paciente)
     btn_guardar.grid(row=len(campos) + 2, column=0, columnspan=2, pady=20)

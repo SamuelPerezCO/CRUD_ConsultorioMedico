@@ -82,13 +82,16 @@ def agregar_paciente(datos_paciente):
                     correo_electronico, direccion, tipo_sangre, alergias, condiciones_medicas_preexistentes,
                     medicamentos_actuales, nombre_contacto_emergencia, telefono_emergencia, relacion_paciente, historia_clinica
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, datos_paciente)
+            """, datos_paciente[:15])  # Ajustamos la longitud de los datos a 15 valores
             conexion.commit()
             print("Paciente agregado exitosamente.")
         except sqlite3.Error as e:
             print(f"Error al agregar paciente: {e}")
         finally:
             cerrar_conexion(conexion)
+
+# Asegúrate de que `datos_paciente` tenga solo 15 elementos al momento de llamarlo o ajusta el número en el código.
+
 
 def buscar_paciente(id_paciente):
     conexion, cursor = conectar()
