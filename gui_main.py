@@ -44,7 +44,6 @@ btn_listar_pacientes = ctk.CTkButton(frame_izquierdo, text="Listar Pacientes", f
                                      width=170, height=50, corner_radius=15, command=lambda:listar_pacientes())
 btn_listar_pacientes.grid(row=4, column=0, padx=10, pady=20, sticky="n")
 
-
 frame_izquierdo.grid_rowconfigure(4, weight=2)  # Espacio adicional para balancear
 
 # Marco para la sección derecha
@@ -53,19 +52,20 @@ frame_derecha.grid(row=0, column=1, sticky="nswe")
 frame_derecha.grid_rowconfigure(0, weight=1)
 frame_derecha.grid_columnconfigure(0, weight=1)
 
-# Lista de pacientes simulada
-pacientes = [
-    {"DNI": "123456", "Nombre Completo": "Juan Pérez", "Teléfono": "555-1234", "Correo Electrónico": "juan@example.com"}
-]
-
-# Lista de citas simulada
-citas = [
-    {"Hora": "10:00 AM", "Paciente": "Juan Pérez", "Motivo": "Consulta general"},
-    {"Hora": "11:30 AM", "Paciente": "María Gómez", "Motivo": "Chequeo anual"},
-    {"Hora": "02:00 PM", "Paciente": "Carlos López", "Motivo": "Dolor de cabeza"}
-]
-
 def listar_pacientes():
+    """
+    Genera una vista en la interfaz para listar todos los pacientes registrados.
+
+    La función limpia el contenido actual del marco derecho y muestra una tabla
+    con los datos de los pacientes obtenidos desde la base de datos. Incluye un
+    botón para regresar al menú principal.
+
+    Args:
+        Ninguno
+
+    Returns:
+        None
+    """
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -95,8 +95,21 @@ def listar_pacientes():
     btn_volver = ctk.CTkButton(frame_derecha, text="Volver", command=mostrar_mensaje_inicial)
     btn_volver.grid(row=2, column=0, columnspan=2, pady=20)
 
-
 def gestionar_historia_clinica(paciente):
+    """
+    Muestra la vista de la historia clínica de un paciente en la interfaz.
+
+    Esta función permite visualizar los registros de historia clínica de un paciente
+    y agregar nuevos registros. Además, ofrece opciones para navegar de vuelta al
+    menú principal.
+
+    Args:
+        paciente (dict): Diccionario que contiene la información del paciente,
+            incluyendo el nombre y el número de identificación.
+
+    Returns:
+        None
+    """
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -127,6 +140,15 @@ def gestionar_historia_clinica(paciente):
 
     # Función para agregar un nuevo registro
     def agregar_registro():
+        """
+        Muestra un formulario para agregar un nuevo registro a la historia clínica.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         for widget in frame_derecha.winfo_children():
             widget.destroy()
 
@@ -155,6 +177,18 @@ def gestionar_historia_clinica(paciente):
 
         # Función para guardar el registro en la base de datos
         def guardar_nuevo_registro():
+            """
+            Guarda un nuevo registro de historia clínica en la base de datos.
+
+            Args:
+                None
+
+            Returns:
+                None
+
+            Raises:
+                Exception: Si ocurre un error durante la inserción del registro.
+            """
             nuevo_registro = {
                 "Fecha": entries["Fecha (DD/MM/AAAA)"].get(),
                 "Motivo": entries["Motivo"].get(),
@@ -185,9 +219,17 @@ def gestionar_historia_clinica(paciente):
     btn_volver = ctk.CTkButton(frame_derecha, text="Volver", font=("Arial", 14), command=mostrar_mensaje_inicial)
     btn_volver.grid(row=2, column=1, pady=20, padx=10)
 
-
-
 def mostrar_historia_clinica(paciente):
+    """
+    Muestra la vista de la historia clínica de un paciente, incluyendo una tabla con los
+    registros existentes y opciones para agregar nuevos registros.
+
+    Args:
+        paciente (dict): Diccionario que contiene la información del paciente y su historia clínica.
+
+    Returns:
+        None
+    """
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -218,6 +260,15 @@ def mostrar_historia_clinica(paciente):
 
     # Botón para agregar un nuevo registro
     def agregar_registro():
+        """
+        Muestra un formulario para agregar un nuevo registro a la historia clínica del paciente.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         for widget in frame_derecha.winfo_children():
             widget.destroy()
 
@@ -246,6 +297,15 @@ def mostrar_historia_clinica(paciente):
 
         # Guardar el registro en el historial
         def guardar_registro():
+            """
+            Guarda un nuevo registro en la historia clínica del paciente.
+
+            Args:
+                None
+
+            Returns:
+                None
+            """
             nuevo_registro = {campo: entrada.get() for campo, entrada in entries.items()}
             nuevo_registro["Tratamiento"] = text_tratamiento.get("1.0", "end-1c")  # Obtener texto completo del área
             if "Historia Clínica" not in paciente:
@@ -271,6 +331,18 @@ def mostrar_historia_clinica(paciente):
 
 # Mensaje inicial
 def mostrar_mensaje_inicial():
+    """
+    Muestra el mensaje inicial en la interfaz con la lista de citas programadas para hoy.
+
+    Esta función limpia el contenido del marco derecho y muestra una tabla con las
+    citas obtenidas desde la base de datos, incluyendo su ID, hora, paciente y motivo.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -298,25 +370,40 @@ def mostrar_mensaje_inicial():
 
     # Filas de la tabla
     for row_idx, cita in enumerate(citas, start=1):
-        label_id = ctk.CTkLabel(scroll_frame, text=cita["ID"], font=("Arial", 12))  # ID de la cita
+        # ID de la cita
+        label_id = ctk.CTkLabel(scroll_frame, text=cita["ID"], font=("Arial", 12))
         label_id.grid(row=row_idx, column=0, padx=10, pady=5, sticky="nsew")
 
-        label_hora = ctk.CTkLabel(scroll_frame, text=cita["Hora"], font=("Arial", 12))  # Fecha y hora
+        # Fecha y hora
+        label_hora = ctk.CTkLabel(scroll_frame, text=cita["Hora"], font=("Arial", 12))
         label_hora.grid(row=row_idx, column=1, padx=10, pady=5, sticky="nsew")
 
-        label_paciente = ctk.CTkLabel(scroll_frame, text=cita["Paciente"], font=("Arial", 12))  # Nombre del paciente
+        # Nombre del paciente
+        label_paciente = ctk.CTkLabel(scroll_frame, text=cita["Paciente"], font=("Arial", 12))
         label_paciente.grid(row=row_idx, column=2, padx=10, pady=5, sticky="nsew")
 
-        label_motivo = ctk.CTkLabel(scroll_frame, text=cita["Motivo"], font=("Arial", 12))  # Motivo
+        # Motivo
+        label_motivo = ctk.CTkLabel(scroll_frame, text=cita["Motivo"], font=("Arial", 12))
         label_motivo.grid(row=row_idx, column=3, padx=10, pady=5, sticky="nsew")
 
 
 # Ajusta el encabezado y las columnas para incluir "ID" en la vista de citas.
-
-
 mostrar_mensaje_inicial()
 
 def mostrar_crear_cita():
+    """
+    Muestra el formulario para crear una nueva cita.
+
+    El formulario incluye campos para seleccionar un paciente, ingresar fecha y hora,
+    y proporcionar el motivo de la cita. Además, permite guardar la cita o volver al
+    menú principal.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -354,6 +441,22 @@ def mostrar_crear_cita():
 
     # Botón para guardar la cita
     def guardar_cita():
+        """
+        Valida y guarda los datos de la cita en la base de datos.
+
+        Verifica que los campos requeridos estén completos y selecciona al paciente
+        correspondiente. Si la validación es exitosa, la cita se guarda; de lo contrario,
+        se muestra un mensaje de error.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            Exception: Si ocurre un error al guardar la cita en la base de datos.
+        """
         paciente_seleccionado = pacientes_var.get()
         fecha_hora = entry_hora.get().strip()
         motivo = entry_motivo.get().strip()
@@ -387,10 +490,21 @@ def mostrar_crear_cita():
     btn_volver = ctk.CTkButton(frame_derecha, text="Volver", font=("Arial", 14), command=mostrar_mensaje_inicial)
     btn_volver.grid(row=5, column=0, columnspan=2, pady=10)
 
-
-
 # Función para mostrar el formulario de búsqueda (centrado)
 def mostrar_buscar_paciente():
+    """
+    Muestra el formulario para buscar un paciente por su número de identificación (DNI).
+
+    Este formulario permite al usuario ingresar un número de identificación y buscar
+    al paciente correspondiente en la base de datos. Si el paciente es encontrado,
+    se muestra su información; de lo contrario, se muestra un mensaje de error.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -410,6 +524,22 @@ def mostrar_buscar_paciente():
     entry_dni.grid(row=1, column=1, padx=20, pady=10, sticky="w")
 
     def buscar_paciente():
+        """
+        Busca un paciente en la base de datos por su número de identificación.
+
+        Verifica que el campo de entrada no esté vacío. Si el paciente es encontrado,
+        se llama a la función para mostrar su información. Si no, se muestra un mensaje
+        de error indicando que no se encontró.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            None
+        """
         dni = entry_dni.get().strip()
         if not dni:
             mensaje_error = ctk.CTkLabel(frame_derecha, text="Por favor, ingrese un número de identificación válido.", font=("Arial", 14), fg_color="red")
@@ -429,6 +559,22 @@ def mostrar_buscar_paciente():
     btn_buscar.grid(row=2, column=0, columnspan=2, pady=20)
 
 def actualizar_citas():
+    """
+    Actualiza la lista de citas global y la interfaz gráfica para reflejar los cambios.
+
+    Esta función limpia la lista global de citas, la actualiza con datos
+    obtenidos desde la base de datos y convierte estos datos a un formato
+    adecuado para su visualización en la interfaz gráfica.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Raises:
+        None
+    """
     global citas  # Aseguramos que estamos trabajando con la lista global `citas`
 
     # Limpiar la lista actual
@@ -448,12 +594,21 @@ def actualizar_citas():
     # Recargar la tabla gráfica
     mostrar_mensaje_inicial()
 
-
 # Función para mostrar la información del paciente
 # Declaración global para pacientes_var
 pacientes_var = ctk.StringVar(value="Seleccionar paciente")
 
 def mostrar_informacion_paciente(paciente, editable=False):
+    """
+    Muestra la información de un paciente, incluyendo la posibilidad de editar, eliminar, y realizar otras acciones.
+
+    Args:
+        paciente (dict): Diccionario con los datos del paciente.
+        editable (bool): Indica si la información del paciente puede ser editada. Por defecto es False.
+
+    Returns:
+        None
+    """
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -491,7 +646,15 @@ def mostrar_informacion_paciente(paciente, editable=False):
         labels[campo] = label_valor
 
     def habilitar_edicion(paciente):
-        """Habilita la edición de los datos del paciente."""
+        """
+        Habilita la edición de los datos del paciente.
+
+        Args:
+            paciente (dict): Diccionario con los datos del paciente.
+
+        Returns:
+            None
+        """
         for widget in labels.values():
             widget.grid_forget()
 
@@ -508,7 +671,15 @@ def mostrar_informacion_paciente(paciente, editable=False):
         btn_guardar.grid(row=len(campos) + 2, column=0, columnspan=2, pady=10)
 
     def guardar_cambios(paciente):
-        """Guarda los cambios editados del paciente en la base de datos."""
+        """
+        Guarda los cambios editados del paciente en la base de datos.
+
+        Args:
+            paciente (dict): Diccionario con los datos del paciente.
+
+        Returns:
+            None
+        """
         nuevos_datos = {campo: entry.get() for campo, entry in entries.items()}  # Extraer datos de las entradas
 
         try:
@@ -531,12 +702,28 @@ def mostrar_informacion_paciente(paciente, editable=False):
             mensaje.grid(row=len(campos) + 2, column=0, columnspan=2, pady=10)
 
     def ir_a_crear_cita():
-        """Navega a la vista de crear cita con el paciente preseleccionado."""
+        """
+        Navega a la vista de crear cita con el paciente preseleccionado.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         mostrar_crear_cita()
         pacientes_var.set(paciente["nombre_completo"])
 
     def eliminar_paciente():
-        """Elimina al paciente de la base de datos."""
+        """
+        Elimina al paciente de la base de datos.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         try:
             confirmar = ctk.CTkLabel(frame_derecha, text="¿Está seguro de eliminar este paciente?", font=("Arial", 14), fg_color="yellow")
             confirmar.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
@@ -558,7 +745,6 @@ def mostrar_informacion_paciente(paciente, editable=False):
     botones_frame = ctk.CTkFrame(frame_derecha)
     botones_frame.grid(row=len(campos)+1, column=0, columnspan=2, pady=20, padx=20)
 
-    # if editable:  # Mostrar el botón "Editar Información" si se permite la edición
     btn_editar = ctk.CTkButton(botones_frame, text="Editar Información", command=lambda: habilitar_edicion(paciente))
     btn_editar.grid(row=0, column=0, padx=10)
 
@@ -574,10 +760,24 @@ def mostrar_informacion_paciente(paciente, editable=False):
     btn_volver = ctk.CTkButton(botones_frame, text="Volver", command=mostrar_mensaje_inicial)
     btn_volver.grid(row=0, column=4, padx=10)
 
-
-
 # Función para mostrar el formulario de crear paciente (sin cambios)
 def mostrar_formulario():
+    """
+    Muestra el formulario para crear un nuevo paciente, permitiendo ingresar todos los datos necesarios.
+
+    El formulario incluye campos para información básica del paciente como nombre, fecha de nacimiento,
+    género, contacto de emergencia, entre otros. Una vez completados los datos, el usuario puede guardar
+    al paciente en la base de datos.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Raises:
+        None
+    """
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -624,6 +824,18 @@ def mostrar_formulario():
             entries[campo] = entry
 
     def guardar_paciente():
+        """
+        Guarda los datos ingresados en el formulario en la base de datos y muestra la información del paciente.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            Exception: Si ocurre un error al guardar los datos o al interactuar con la base de datos.
+        """
         datos_paciente = [
             entrada.get() if not isinstance(entrada, ctk.StringVar) else entrada.get() 
             for entrada in entries.values()
@@ -659,19 +871,44 @@ def mostrar_formulario():
             mensaje = ctk.CTkLabel(frame_derecha, text=f"Error: {str(e)}", font=("Arial", 14), fg_color="red")
             mensaje.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
 
-
     btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar", command=guardar_paciente)
     btn_guardar.grid(row=len(campos)+1, column=0, columnspan=2, pady=20)
 
     frame_derecha.grid_columnconfigure(1, weight=1)
 
 def obtener_dni_paciente(nombre):
+    """
+    Obtiene el DNI de un paciente dado su nombre.
+
+    Args:
+        nombre (str): Nombre completo del paciente.
+
+    Returns:
+        str: DNI del paciente si se encuentra.
+        None: Si no se encuentra el DNI del paciente.
+
+    Raises:
+        None
+    """
     dni = buscar_id_paciente_por_nombre(nombre)
     if not dni:
         print(f"No se encontró el DNI para el paciente: {nombre}")
     return dni
 
+
 def mostrar_citas():
+    """
+    Muestra la interfaz de gestión de citas, permitiendo crear, actualizar o eliminar citas.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Raises:
+        None
+    """
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
@@ -682,9 +919,27 @@ def mostrar_citas():
     titulo_citas.grid(row=0, column=0, columnspan=2, pady=20)
 
     def crear_cita():
+        """
+        Navega a la interfaz para crear una nueva cita.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         mostrar_crear_cita()
 
     def formulario_actualizar_cita():
+        """
+        Muestra el formulario para actualizar una cita existente.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         for widget in frame_derecha.winfo_children():
             widget.destroy()
 
@@ -710,6 +965,18 @@ def mostrar_citas():
         entry_nuevo_motivo.grid(row=3, column=1, padx=20, pady=10, sticky="w")
 
         def guardar_actualizacion():
+            """
+            Guarda los cambios realizados en una cita existente en la base de datos.
+
+            Args:
+                None
+
+            Returns:
+                None
+
+            Raises:
+                ValueError: Si no se encuentra el número de identificación para la cita.
+            """
             id_cita = entry_id_cita.get().strip()
             nueva_fecha = entry_nueva_fecha.get().strip()
             nuevo_motivo = entry_nuevo_motivo.get().strip()
@@ -723,7 +990,7 @@ def mostrar_citas():
                 numero_identificacion = obtener_numero_identificacion_por_cita(id_cita)
                 if not numero_identificacion:
                     raise ValueError("No se encontró el número de identificación para la cita.")
-                
+
                 actualizar_cita(id_cita, [numero_identificacion, nueva_fecha, nuevo_motivo])
                 mostrar_citas()
             except Exception as e:
@@ -734,6 +1001,15 @@ def mostrar_citas():
         btn_guardar.grid(row=4, column=0, columnspan=2, pady=20)
 
     def eliminar_cita_button():
+        """
+        Muestra el formulario para eliminar una cita existente.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         for widget in frame_derecha.winfo_children():
             widget.destroy()
 
@@ -747,6 +1023,18 @@ def mostrar_citas():
         entry_id_cita.grid(row=1, column=1, padx=20, pady=10, sticky="w")
 
         def confirmar_eliminacion():
+            """
+            Elimina una cita de la base de datos según su ID.
+
+            Args:
+                None
+
+            Returns:
+                None
+
+            Raises:
+                None
+            """
             id_cita = entry_id_cita.get().strip()
 
             if not id_cita:
@@ -776,10 +1064,5 @@ def mostrar_citas():
     btn_ver_citas = ctk.CTkButton(frame_derecha, text="Ver Citas", command=mostrar_mensaje_inicial)
     btn_ver_citas.grid(row=2, column=1, pady=20, padx=20, sticky="w")
 
-
-
-
-
 # Ejecutar la aplicación
 app.mainloop()
-
