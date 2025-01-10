@@ -9,7 +9,6 @@ def conectar():
 
     try:
         conexion = sqlite3.connect(db_path)
-        print("Conexión exitosa a la base de datos")
         return conexion
     except sqlite3.Error as e:
         print(f"Error al conectar a la base de datos: {e}")
@@ -19,4 +18,3 @@ def cerrar_conexion(conexion):
     """Cierra la conexión a la base de datos."""
     if conexion:
         conexion.close()
-        print("Conexión cerrada.")
