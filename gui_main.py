@@ -11,8 +11,8 @@ ctk.set_default_color_theme("blue")
 # Crear ventana principal
 app = ctk.CTk()
 app.title("Consultorio Médico")
-app.geometry("1500x1000")  # Tamaño inicial
-app.minsize(1500, 1000)  # Tamaño mínimo
+app.geometry("1200x800")  # Tamaño inicial
+app.minsize(1200, 800)  # Tamaño mínimo
 
 # Configurar diseño de la ventana
 app.grid_rowconfigure(0, weight=1)
@@ -847,9 +847,6 @@ def mostrar_formulario():
 
     Returns:
         None
-
-    Raises:
-        None
     """
 
     logger.debug("Entre en mostrar_formulario")
@@ -874,31 +871,38 @@ def mostrar_formulario():
         "Medicamentos Actuales",
         "Nombre Contacto de Emergencia",
         "Teléfono de Emergencia",
-        "Relación con el Paciente",
-        "Historia Clinica",
+        "Relación con el Paciente"
     ]
 
     entries = {}
     for idx, campo in enumerate(campos):
         label = ctk.CTkLabel(frame_derecha, text=campo + ":", anchor="w")
-        label.grid(row=idx+1, column=0, pady=5, sticky="w", padx=10)
+        label.grid(row=idx + 1, column=0, pady=5, sticky="w", padx=10)
 
         if campo == "Género":
             genero_var = ctk.StringVar(value="Masculino")
             opciones_genero = ["Masculino", "Femenino", "Otro"]
             genero_menu = ctk.CTkOptionMenu(frame_derecha, values=opciones_genero, variable=genero_var)
-            genero_menu.grid(row=idx+1, column=1, pady=5, padx=10, sticky="ew")
+            genero_menu.grid(row=idx + 1, column=1, pady=5, padx=10, sticky="ew")
             entries[campo] = genero_var
         elif campo == "Tipo de Sangre":
             sangre_var = ctk.StringVar(value="O+")
             opciones_sangre = ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"]
             sangre_menu = ctk.CTkOptionMenu(frame_derecha, values=opciones_sangre, variable=sangre_var)
-            sangre_menu.grid(row=idx+1, column=1, pady=5, padx=10, sticky="ew")
+            sangre_menu.grid(row=idx + 1, column=1, pady=5, padx=10, sticky="ew")
             entries[campo] = sangre_var
         else:
             entry = ctk.CTkEntry(frame_derecha)
-            entry.grid(row=idx+1, column=1, pady=5, padx=10, sticky="ew")
+            entry.grid(row=idx + 1, column=1, pady=5, padx=10, sticky="ew")
             entries[campo] = entry
+
+    # Campo específico para Historia Clínica
+    label_historia_clinica = ctk.CTkLabel(frame_derecha, text="Historia Clínica:", font=("Arial", 14))
+    label_historia_clinica.grid(row=len(campos) + 1, column=0, padx=20, pady=10, sticky="e")
+
+    text_historia_clinica = ctk.CTkTextbox(frame_derecha, font=("Arial", 14), height=200, width=400, wrap="word")
+    text_historia_clinica.grid(row=len(campos) + 1, column=1, padx=20, pady=10, sticky="w")
+    entries["Historia Clínica"] = text_historia_clinica
 
     def guardar_paciente():
         """
@@ -909,17 +913,14 @@ def mostrar_formulario():
 
         Returns:
             None
-
-        Raises:
-            Exception: Si ocurre un error al guardar los datos o al interactuar con la base de datos.
         """
-
         logger.debug("Entre en guardar_paciente")
 
         datos_paciente = [
-            entrada.get() if not isinstance(entrada, ctk.StringVar) else entrada.get() 
+            entrada.get() if not isinstance(entrada, ctk.StringVar) else entrada.get()
             for entrada in entries.values()
         ]
+        datos_paciente[-1] = text_historia_clinica.get("1.0", "end-1c")  # Extraer texto del área de texto
         try:
             agregar_paciente(datos_paciente)  # Guardar en la base de datos
 
@@ -943,19 +944,21 @@ def mostrar_formulario():
                 "nombre_contacto_emergencia": datos_paciente[11],
                 "telefono_emergencia": datos_paciente[12],
                 "relacion_paciente": datos_paciente[13],
+                "historia_clinica": datos_paciente[14]
             }
 
             # Mostrar la información del paciente recién creado
             mostrar_informacion_paciente(nuevo_paciente)
         except Exception as e:
             mensaje = ctk.CTkLabel(frame_derecha, text=f"Error: {str(e)}", font=("Arial", 14), fg_color="red")
-            mensaje.grid(row=len(campos)+2, column=0, columnspan=2, pady=10)
+            mensaje.grid(row=len(campos) + 2, column=0, columnspan=2, pady=10)
             logger.error(f"Error en guardar_paciente: {e}")
 
     btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar", command=guardar_paciente)
-    btn_guardar.grid(row=len(campos)+1, column=0, columnspan=2, pady=20)
+    btn_guardar.grid(row=len(campos) + 2, column=0, columnspan=2, pady=20)
 
     frame_derecha.grid_columnconfigure(1, weight=1)
+
 
     
 
