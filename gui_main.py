@@ -123,7 +123,7 @@ def gestionar_historia_clinica(paciente):
     # Mostrar registros en la tabla
     for row_idx, registro in enumerate(registros, start=1):
         for col_idx, campo in enumerate(["ID", "Fecha", "Motivo", "Diagnóstico", "Tratamiento"]):
-            valor = registro[campo] if campo != "ID" else registro["ID"]
+            valor = registro[campo]
             label = ctk.CTkLabel(scroll_frame, text=valor, font=("Arial", 12))
             label.grid(row=row_idx, column=col_idx, padx=10, pady=5)
 
@@ -134,23 +134,33 @@ def gestionar_historia_clinica(paciente):
         btn_editar = ctk.CTkButton(scroll_frame, text="Editar", font=("Arial", 12), command=editar_registro)
         btn_editar.grid(row=row_idx, column=len(encabezados) - 1, padx=10, pady=5)
 
+    # Botón para agregar un nuevo registro
+    def agregar_registro():
+        mostrar_formulario_editar_historia(None, paciente)  # Crear nuevo registro
+
+    btn_agregar = ctk.CTkButton(frame_derecha, text="Agregar Nuevo Registro", font=("Arial", 14), command=agregar_registro)
+    btn_agregar.grid(row=2, column=0, columnspan=2, pady=20)
+
     # Botón para volver al menú principal
     btn_volver = ctk.CTkButton(frame_derecha, text="Volver", font=("Arial", 14), command=mostrar_mensaje_inicial)
-    btn_volver.grid(row=2, column=0, columnspan=2, pady=20)
+    btn_volver.grid(row=3, column=0, columnspan=2, pady=20)
+
 
 def mostrar_formulario_editar_historia(id_historia, paciente):
     for widget in frame_derecha.winfo_children():
         widget.destroy()
 
-    registro = obtener_historia_por_id(id_historia)
-
-    if not registro:
-        mensaje_error = ctk.CTkLabel(frame_derecha, text="Error: No se encontró el registro.", font=("Arial", 14), fg_color="red")
-        mensaje_error.grid(row=0, column=0, columnspan=2, pady=10)
-        return
+    if id_historia:
+        registro = obtener_historia_por_id(id_historia)
+    else:
+        registro = {"Fecha": "", "Motivo": "", "Diagnóstico": "", "Tratamiento": ""}  # Valores vacíos para nuevo registro
 
     # Título del formulario
-    titulo_form = ctk.CTkLabel(frame_derecha, text=f"Editar Registro - {registro['Fecha']}", font=("Arial", 20, "bold"))
+    titulo_form = ctk.CTkLabel(
+        frame_derecha,
+        text=f"{'Editar' if id_historia else 'Agregar'} Registro",
+        font=("Arial", 20, "bold")
+    )
     titulo_form.grid(row=0, column=0, columnspan=2, pady=20)
 
     # Campos del formulario
@@ -170,10 +180,17 @@ def mostrar_formulario_editar_historia(id_historia, paciente):
     def guardar_cambios():
         nuevos_datos = {campo: entrada.get() for campo, entrada in entries.items()}
         try:
-            actualizar_historia_clinica(id_historia, nuevos_datos)
+            if id_historia:
+                # Editar un registro existente
+                actualizar_historia_clinica(id_historia, nuevos_datos)
+            else:
+                # Agregar un nuevo registro
+                agregar_historia_clinica(paciente["numero_identificacion"], nuevos_datos)
             gestionar_historia_clinica(paciente)  # Volver a la vista de historia clínica
         except Exception as e:
-            mensaje_error = ctk.CTkLabel(frame_derecha, text=f"Error: {e}", font=("Arial", 14), fg_color="red")
+            mensaje_error = ctk.CTkLabel(
+                frame_derecha, text=f"Error: {e}", font=("Arial", 14), fg_color="red"
+            )
             mensaje_error.grid(row=len(campos) + 1, column=0, columnspan=2, pady=10)
 
     # Botón para guardar los cambios
@@ -183,6 +200,66 @@ def mostrar_formulario_editar_historia(id_historia, paciente):
     # Botón para cancelar y volver
     btn_cancelar = ctk.CTkButton(frame_derecha, text="Cancelar", font=("Arial", 14), command=lambda: gestionar_historia_clinica(paciente))
     btn_cancelar.grid(row=len(campos) + 2, column=0, columnspan=2, pady=10)
+
+
+
+
+def mostrar_formulario_editar_historia(id_historia, paciente):
+    for widget in frame_derecha.winfo_children():
+        widget.destroy()
+
+    if id_historia:
+        registro = obtener_historia_por_id(id_historia)
+    else:
+        # Valores predeterminados para un nuevo registro
+        registro = {"Fecha": "", "Motivo": "", "Diagnóstico": "", "Tratamiento": ""}
+
+    # Título del formulario
+    titulo_form = ctk.CTkLabel(
+        frame_derecha,
+        text=f"{'Editar' if id_historia else 'Agregar'} Registro",
+        font=("Arial", 20, "bold")
+    )
+    titulo_form.grid(row=0, column=0, columnspan=2, pady=20)
+
+    # Campos del formulario
+    campos = ["Fecha", "Motivo", "Diagnóstico", "Tratamiento"]
+    entries = {}
+
+    for idx, campo in enumerate(campos):
+        label = ctk.CTkLabel(frame_derecha, text=f"{campo}:", font=("Arial", 14))
+        label.grid(row=idx + 1, column=0, padx=20, pady=10, sticky="e")
+
+        entry = ctk.CTkEntry(frame_derecha, font=("Arial", 14), width=300)
+        entry.insert(0, registro[campo])
+        entry.grid(row=idx + 1, column=1, padx=20, pady=10, sticky="w")
+        entries[campo] = entry
+
+    # Función para guardar los cambios
+    def guardar_cambios():
+        nuevos_datos = {campo: entrada.get() for campo, entrada in entries.items()}
+        try:
+            if id_historia:
+                # Editar un registro existente
+                actualizar_historia_clinica(id_historia, nuevos_datos)
+            else:
+                # Agregar un nuevo registro
+                agregar_historia_clinica(paciente["numero_identificacion"], nuevos_datos)
+            gestionar_historia_clinica(paciente)  # Volver a la vista de historia clínica
+        except Exception as e:
+            mensaje_error = ctk.CTkLabel(
+                frame_derecha, text=f"Error: {e}", font=("Arial", 14), fg_color="red"
+            )
+            mensaje_error.grid(row=len(campos) + 1, column=0, columnspan=2, pady=10)
+
+    # Botón para guardar los cambios
+    btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cambios", font=("Arial", 14), command=guardar_cambios)
+    btn_guardar.grid(row=len(campos) + 1, column=0, columnspan=2, pady=20)
+
+    # Botón para cancelar y volver
+    btn_cancelar = ctk.CTkButton(frame_derecha, text="Cancelar", font=("Arial", 14), command=lambda: gestionar_historia_clinica(paciente))
+    btn_cancelar.grid(row=len(campos) + 2, column=0, columnspan=2, pady=10)
+
 
 
 

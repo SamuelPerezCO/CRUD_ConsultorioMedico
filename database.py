@@ -1,24 +1,26 @@
 from db_connector import conectar, cerrar_conexion
 import sqlite3
 
-def agregar_historia_clinica(dni_paciente, registro):
+def agregar_historia_clinica(numero_identificacion, registro):
     conexion = conectar()
     try:
         cursor = conexion.cursor()
         cursor.execute("""
-            INSERT INTO Historia_Clinica (dni_paciente, fecha, motivo, diagnostico, tratamiento) 
+            INSERT INTO Historia_Clinica (numero_identificacion, fecha, motivo, diagnostico, tratamiento) 
             VALUES (?, ?, ?, ?, ?)
         """, (
-            dni_paciente,
+            numero_identificacion,
             registro["Fecha"],
             registro["Motivo"],
             registro["Diagnóstico"],
             registro["Tratamiento"]
         ))
         conexion.commit()
+        print("Registro agregado exitosamente.")
+    except sqlite3.Error as e:
+        print(f"Error al agregar el registro: {e}")
     finally:
         cerrar_conexion(conexion)
-
 
 def obtener_historia_clinica(numero_identificacion):
     conexion = conectar()
