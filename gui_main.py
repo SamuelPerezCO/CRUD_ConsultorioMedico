@@ -488,12 +488,12 @@ def mostrar_crear_cita():
     entry_hora = ctk.CTkEntry(frame_derecha)
     entry_hora.grid(row=3, column=1, padx=20, pady=10, sticky="w")
 
-    # Motivo de la cita
-    label_motivo = ctk.CTkLabel(frame_derecha, text="Motivo:", font=("Arial", 14), anchor="w")
-    label_motivo.grid(row=4, column=0, padx=20, pady=10, sticky="e")
+    # Historial Clínico
+    label_historial = ctk.CTkLabel(frame_derecha, text="Historial Clínico:", font=("Arial", 14), anchor="w")
+    label_historial.grid(row=4, column=0, padx=20, pady=10, sticky="e")
 
-    entry_motivo = ctk.CTkEntry(frame_derecha)
-    entry_motivo.grid(row=4, column=1, padx=20, pady=10, sticky="w")
+    entry_historial = ctk.CTkTextbox(frame_derecha, font=("Arial", 14), height=200, width=400, wrap="word")
+    entry_historial.grid(row=4, column=1, padx=20, pady=10, sticky="w")
 
     # Botón para guardar la cita
     def guardar_cita():
@@ -503,7 +503,7 @@ def mostrar_crear_cita():
 
         dni = entry_dni.get().strip()
         fecha_hora = entry_hora.get().strip()
-        motivo = entry_motivo.get().strip()
+        motivo = entry_historial.get("1.0", "end-1c").strip()
 
         if not dni or not fecha_hora or not motivo:
             mensaje_error = ctk.CTkLabel(frame_derecha, text="Por favor, complete todos los campos.", font=("Arial", 14), fg_color="red")
@@ -529,6 +529,7 @@ def mostrar_crear_cita():
     # Botón para volver al menú principal
     btn_volver = ctk.CTkButton(frame_derecha, text="Volver", font=("Arial", 14), command=mostrar_mensaje_inicial)
     btn_volver.grid(row=6, column=0, columnspan=2, pady=10)
+
 
 
 # Función para mostrar el formulario de búsqueda (centrado)
@@ -1072,28 +1073,19 @@ def mostrar_citas():
         label_nuevo_motivo = ctk.CTkLabel(frame_derecha, text="Nuevo Motivo:", font=("Arial", 14))
         label_nuevo_motivo.grid(row=3, column=0, padx=20, pady=10, sticky="e")
 
-        entry_nuevo_motivo = ctk.CTkEntry(frame_derecha)
+        entry_nuevo_motivo = ctk.CTkTextbox(frame_derecha, font=("Arial", 14), height=200, width=400, wrap="word")
         entry_nuevo_motivo.grid(row=3, column=1, padx=20, pady=10, sticky="w")
 
         def guardar_actualizacion():
             """
             Guarda los cambios realizados en una cita existente en la base de datos.
-
-            Args:
-                None
-
-            Returns:
-                None
-
-            Raises:
-                ValueError: Si no se encuentra el número de identificación para la cita.
             """
 
             logger.debug("Entre en guardar_actualizacion")
 
             id_cita = entry_id_cita.get().strip()
             nueva_fecha = entry_nueva_fecha.get().strip()
-            nuevo_motivo = entry_nuevo_motivo.get().strip()
+            nuevo_motivo = entry_nuevo_motivo.get("1.0", "end-1c").strip()
 
             if not id_cita or not nueva_fecha or not nuevo_motivo:
                 mensaje_error = ctk.CTkLabel(frame_derecha, text="Por favor, complete todos los campos.", font=("Arial", 14), fg_color="red")
@@ -1110,7 +1102,6 @@ def mostrar_citas():
             except Exception as e:
                 mensaje_error = ctk.CTkLabel(frame_derecha, text=f"Error: {e}", font=("Arial", 14), fg_color="red")
                 mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
-                logger.error(f"Error en guardar_actualizacion {e}")
 
         btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cambios", command=guardar_actualizacion)
         btn_guardar.grid(row=4, column=0, columnspan=2, pady=20)
