@@ -1,5 +1,5 @@
 from database import agregar_paciente, buscar_paciente_por_dni, actualizar_paciente, eliminar_paciente_por_id, obtener_pacientes, obtener_historia_clinica, agregar_historia_clinica , buscar_id_paciente_por_nombre
-from database import agregar_cita , actualizar_cita , obtener_citas , buscar_paciente_por_dni,obtener_numero_identificacion_por_cita , eliminar_cita
+from database import agregar_cita , actualizar_cita , obtener_citas , buscar_paciente_por_dni,obtener_numero_identificacion_por_cita , eliminar_cita, obtener_citas_hoy
 from logger import logger , cerrar_log
 import customtkinter as ctk
 
@@ -373,7 +373,6 @@ def mostrar_mensaje_inicial():
     Returns:
         None
     """
-
     logger.debug("Entre en mostrar_mensaje_inicial")
 
     for widget in frame_derecha.winfo_children():
@@ -384,7 +383,7 @@ def mostrar_mensaje_inicial():
     frame_derecha.grid_columnconfigure(0, weight=1)
 
     # Encabezado principal
-    titulo_citas = ctk.CTkLabel(frame_derecha, text="Citas de Hoy", font=("Arial", 20, "bold"))
+    titulo_citas = ctk.CTkLabel(frame_derecha, text="Citas", font=("Arial", 20, "bold"))
     titulo_citas.grid(row=0, column=0, pady=(10, 20))
 
     # Crear marco desplazable para la tabla
@@ -393,29 +392,25 @@ def mostrar_mensaje_inicial():
     scroll_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
     # Encabezados de la tabla
-    encabezados = ["ID", "Hora", "Paciente", "Motivo"]
+    encabezados = ["ID", "Hora", "Paciente", "Historia Clinica"]
     for idx, encabezado in enumerate(encabezados):
         label_encabezado = ctk.CTkLabel(scroll_frame, text=encabezado, font=("Arial", 14, "bold"))
         label_encabezado.grid(row=0, column=idx, padx=10, pady=10, sticky="nsew")
 
-    # Obtener citas desde la base de datos
-    citas = obtener_citas()
+    # Obtener citas del día de hoy desde la base de datos
+    citas = obtener_citas_hoy()
 
     # Filas de la tabla
     for row_idx, cita in enumerate(citas, start=1):
-        # ID de la cita
         label_id = ctk.CTkLabel(scroll_frame, text=cita["ID"], font=("Arial", 12))
         label_id.grid(row=row_idx, column=0, padx=10, pady=5, sticky="nsew")
 
-        # Fecha y hora
         label_hora = ctk.CTkLabel(scroll_frame, text=cita["Hora"], font=("Arial", 12))
         label_hora.grid(row=row_idx, column=1, padx=10, pady=5, sticky="nsew")
 
-        # Nombre del paciente
         label_paciente = ctk.CTkLabel(scroll_frame, text=cita["Paciente"], font=("Arial", 12))
         label_paciente.grid(row=row_idx, column=2, padx=10, pady=5, sticky="nsew")
 
-        # Motivo
         label_motivo = ctk.CTkLabel(scroll_frame, text=cita["Motivo"], font=("Arial", 12))
         label_motivo.grid(row=row_idx, column=3, padx=10, pady=5, sticky="nsew")
 
@@ -1173,6 +1168,60 @@ def mostrar_citas():
 
     btn_ver_citas = ctk.CTkButton(frame_derecha, text="Ver Citas", command=mostrar_mensaje_inicial)
     btn_ver_citas.grid(row=2, column=1, pady=20, padx=20, sticky="w")
+
+def mostrar_todas_las_citas():
+    """
+    Muestra todas las citas almacenadas en la base de datos.
+
+    Esta función limpia el contenido del marco derecho y muestra una tabla con todas
+    las citas incluyendo su ID, hora, paciente y motivo.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    logger.debug("Entre en mostrar_todas_las_citas")
+
+    for widget in frame_derecha.winfo_children():
+        widget.destroy()
+
+    frame_derecha.grid_rowconfigure(0, weight=0)
+    frame_derecha.grid_rowconfigure(1, weight=1)
+    frame_derecha.grid_columnconfigure(0, weight=1)
+
+    # Encabezado principal
+    titulo_citas = ctk.CTkLabel(frame_derecha, text="Todas las Citas", font=("Arial", 20, "bold"))
+    titulo_citas.grid(row=0, column=0, pady=(10, 20))
+
+    # Crear marco desplazable para la tabla
+    scroll_frame = ctk.CTkScrollableFrame(frame_derecha)
+    scroll_frame.grid(row=1, column=0, sticky="nswe", padx=20, pady=10)
+    scroll_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
+
+    # Encabezados de la tabla
+    encabezados = ["ID", "Hora", "Paciente", "Motivo"]
+    for idx, encabezado in enumerate(encabezados):
+        label_encabezado = ctk.CTkLabel(scroll_frame, text=encabezado, font=("Arial", 14, "bold"))
+        label_encabezado.grid(row=0, column=idx, padx=10, pady=10, sticky="nsew")
+
+    # Obtener todas las citas desde la base de datos
+    citas = obtener_citas()
+
+    # Filas de la tabla
+    for row_idx, cita in enumerate(citas, start=1):
+        label_id = ctk.CTkLabel(scroll_frame, text=cita["ID"], font=("Arial", 12))
+        label_id.grid(row=row_idx, column=0, padx=10, pady=5, sticky="nsew")
+
+        label_hora = ctk.CTkLabel(scroll_frame, text=cita["Hora"], font=("Arial", 12))
+        label_hora.grid(row=row_idx, column=1, padx=10, pady=5, sticky="nsew")
+
+        label_paciente = ctk.CTkLabel(scroll_frame, text=cita["Paciente"], font=("Arial", 12))
+        label_paciente.grid(row=row_idx, column=2, padx=10, pady=5, sticky="nsew")
+
+        label_motivo = ctk.CTkLabel(scroll_frame, text=cita["Motivo"], font=("Arial", 12))
+        label_motivo.grid(row=row_idx, column=3, padx=10, pady=5, sticky="nsew")
 
 # Ejecutar la aplicación
 app.mainloop()
