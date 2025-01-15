@@ -40,10 +40,14 @@ logger.addHandler(file_handler)
 
 
 def cerrar_log():
-    """Cierra el log al iniciar la aplicación pero mantiene el registro activo."""
+    """Cierra la consola de comandos que muestra el log."""
+    import os
+    import sys
+    if os.name == 'nt':  # Solo para Windows
+        import ctypes
+        ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)
+    elif os.name == 'posix':
+        sys.stdout = open(os.devnull, 'w')  # Redirige stdout a null en sistemas Unix
     import logging
     logger = logging.getLogger()
-    for handler in logger.handlers:
-        if isinstance(handler, logging.StreamHandler):
-            logger.removeHandler(handler)
-    logger.info("Log de ventana cerrado pero sigue registrando en archivos o configuraciones activas.")
+    logger.info("Consola de comandos cerrada, pero el log sigue activo en archivos configurados.")
