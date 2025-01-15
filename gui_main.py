@@ -1,6 +1,6 @@
 
 from database import agregar_paciente, buscar_paciente_por_dni, actualizar_paciente, eliminar_paciente_por_id, obtener_pacientes, obtener_historia_clinica, agregar_historia_clinica , buscar_id_paciente_por_nombre
-from database import agregar_cita , actualizar_cita , obtener_citas , buscar_paciente_por_dni,obtener_numero_identificacion_por_cita , eliminar_cita
+from database import agregar_cita , actualizar_cita , obtener_citas , buscar_paciente_por_dni,obtener_numero_identificacion_por_cita , eliminar_cita , obtener_citas_por_paciente
 from logger import logger , cerrar_log
 import customtkinter as ctk
 
@@ -1159,6 +1159,72 @@ def mostrar_citas():
 
     btn_ver_citas = ctk.CTkButton(frame_derecha, text="Ver Citas", command=mostrar_mensaje_inicial)
     btn_ver_citas.grid(row=2, column=1, pady=20, padx=20, sticky="w")
+
+def consultar_citas_por_dni():
+    """
+    Permite consultar todas las citas de un paciente ingresando su DNI.
+
+    Esta función limpia la interfaz derecha y muestra una lista de todas las citas
+    asociadas al paciente identificado por su DNI.
+    """
+    for widget in frame_derecha.winfo_children():
+        widget.destroy()
+
+    # Título de la vista
+    titulo = ctk.CTkLabel(frame_derecha, text="Consultar Citas por DNI", font=("Arial", 20, "bold"))
+    titulo.grid(row=0, column=0, columnspan=2, pady=20)
+
+    # Campo para ingresar el DNI
+    label_dni = ctk.CTkLabel(frame_derecha, text="Ingrese el DNI:", font=("Arial", 14))
+    label_dni.grid(row=1, column=0, padx=20, pady=10, sticky="e")
+
+    entry_dni = ctk.CTkEntry(frame_derecha)
+    entry_dni.grid(row=1, column=1, padx=20, pady=10, sticky="w")
+
+    # Marco para la tabla de citas
+    scroll_frame = ctk.CTkScrollableFrame(frame_derecha)
+    scroll_frame.grid(row=3, column=0, columnspan=2, padx=20, pady=20, sticky="nsew")
+    scroll_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
+
+    # Encabezados de la tabla
+    encabezados = ["Fecha y Hora", "Motivo"]
+    for col_idx, encabezado in enumerate(encabezados):
+        label_encabezado = ctk.CTkLabel(scroll_frame, text=encabezado, font=("Arial", 14, "bold"))
+        label_encabezado.grid(row=0, column=col_idx, padx=10, pady=10)
+
+    def buscar_citas():
+        """
+        Busca y muestra todas las citas asociadas al DNI ingresado.
+        """
+        for widget in scroll_frame.winfo_children():
+            widget.destroy()
+
+        dni = entry_dni.get().strip()
+        if not dni:
+            mensaje_error = ctk.CTkLabel(frame_derecha, text="Por favor, ingrese un DNI válido.", font=("Arial", 14), fg_color="red")
+            mensaje_error.grid(row=2, column=0, columnspan=2, pady=10)
+            return
+
+        citas = obtener_citas_por_paciente(dni)
+        if not citas:
+            mensaje_error = ctk.CTkLabel(frame_derecha, text="No se encontraron citas para este DNI.", font=("Arial", 14), fg_color="red")
+            mensaje_error.grid(row=2, column=0, columnspan=2, pady=10)
+            return
+
+        # Mostrar citas en la tabla
+        for row_idx, cita in enumerate(citas, start=1):
+            ctk.CTkLabel(scroll_frame, text=cita[1], font=("Arial", 12)).grid(row=row_idx, column=0, padx=10, pady=5)
+            ctk.CTkLabel(scroll_frame, text=cita[2], font=("Arial", 12)).grid(row=row_idx, column=1, padx=10, pady=5)
+
+    # Botón para buscar citas
+    btn_buscar = ctk.CTkButton(frame_derecha, text="Buscar", command=buscar_citas)
+    btn_buscar.grid(row=2, column=0, columnspan=2, pady=20)
+
+# Añadir el botón en el menú izquierdo
+btn_consultar_citas = ctk.CTkButton(frame_izquierdo, text="Consultar Citas", font=("Arial", 14),
+                                     width=170, height=50, corner_radius=15, command=consultar_citas_por_dni)
+btn_consultar_citas.grid(row=5, column=0, padx=10, pady=20, sticky="n")
+
 
 # Ejecutar la aplicación
 app.mainloop()
