@@ -140,7 +140,7 @@ def gestionar_historia_clinica(paciente):
     scroll_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
     # Encabezados de la tabla
-    encabezados = ["Fecha", "Motivo", "Diagnóstico", "Tratamiento"]
+    encabezados = ["Fecha", "Historia Clinica", "Diagnóstico", "Tratamiento"]
     for idx, encabezado in enumerate(encabezados):
         label_encabezado = ctk.CTkLabel(scroll_frame, text=encabezado, font=("Arial", 14, "bold"))
         label_encabezado.grid(row=0, column=idx, padx=10, pady=10)
@@ -177,7 +177,7 @@ def gestionar_historia_clinica(paciente):
         titulo_form.grid(row=0, column=0, columnspan=2, pady=20)
 
         # Campos para el nuevo registro
-        campos_registro = ["Fecha (DD/MM/AAAA)", "Motivo", "Diagnóstico", "Tratamiento"]
+        campos_registro = ["Fecha (DD/MM/AAAA)", "Historia Clinica", "Diagnóstico", "Tratamiento"]
         entries = {}
 
         for idx, campo in enumerate(campos_registro[:-1]):  # Excluye "Tratamiento" del bucle
@@ -269,7 +269,7 @@ def mostrar_historia_clinica(paciente):
     scroll_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
     # Encabezados de la tabla
-    encabezados = ["Fecha", "Motivo", "Diagnóstico", "Tratamiento"]
+    encabezados = ["Fecha", "Historia Clinica", "Diagnóstico", "Tratamiento"]
     for idx, encabezado in enumerate(encabezados):
         label_encabezado = ctk.CTkLabel(scroll_frame, text=encabezado, font=("Arial", 14, "bold"))
         label_encabezado.grid(row=0, column=idx, padx=10, pady=10, sticky="nsew")
@@ -306,7 +306,7 @@ def mostrar_historia_clinica(paciente):
         titulo_form.grid(row=0, column=0, columnspan=2, pady=20)
 
         # Campos del formulario
-        campos_registro = ["Fecha (DD/MM/AAAA)", "Motivo", "Diagnóstico"]
+        campos_registro = ["Fecha (DD/MM/AAAA)", "Historia Clinica", "Diagnóstico"]
         entries = {}
 
         for idx, campo in enumerate(campos_registro):
@@ -361,13 +361,14 @@ def mostrar_historia_clinica(paciente):
     btn_volver = ctk.CTkButton(frame_derecha, text="Volver", command=mostrar_mensaje_inicial)
     btn_volver.grid(row=2, column=1, pady=20, padx=20, sticky="e")
 
-# Mensaje inicial
 def mostrar_mensaje_inicial():
     """
-    Muestra el mensaje inicial en la interfaz con la lista de citas programadas para hoy.
+    Muestra el mensaje inicial en la interfaz con las citas filtradas según la selección del usuario.
 
     Esta función limpia el contenido del marco derecho y muestra una tabla con las
     citas obtenidas desde la base de datos, incluyendo su ID, hora, paciente y motivo.
+
+    Además, permite al usuario alternar entre ver todas las citas y las citas seleccionadas.
 
     Args:
         None
@@ -375,8 +376,9 @@ def mostrar_mensaje_inicial():
     Returns:
         None
     """
-
-    logger.debug("Entre en mostrar_mensaje_inicial")
+    global mostrar_todas_citas  # Controla si se muestran todas las citas o solo las seleccionadas
+    if 'mostrar_todas_citas' not in globals():
+        mostrar_todas_citas = True
 
     for widget in frame_derecha.winfo_children():
         widget.destroy()
@@ -386,22 +388,38 @@ def mostrar_mensaje_inicial():
     frame_derecha.grid_columnconfigure(0, weight=1)
 
     # Encabezado principal
-    titulo_citas = ctk.CTkLabel(frame_derecha, text="Citas de Hoy", font=("Arial", 20, "bold"))
+    titulo_citas = ctk.CTkLabel(frame_derecha, text="Citas", font=("Arial", 20, "bold"))
     titulo_citas.grid(row=0, column=0, pady=(10, 20))
+
+    # Botón para alternar entre todas las citas y citas seleccionadas
+    def alternar_vista():
+        global mostrar_todas_citas
+        mostrar_todas_citas = not mostrar_todas_citas
+        mostrar_mensaje_inicial()
+
+    btn_alternar = ctk.CTkButton(
+        frame_derecha, 
+        text="Ver Todas" if not mostrar_todas_citas else "Ver Seleccionadas",
+        command=alternar_vista
+    )
+    btn_alternar.grid(row=0, column=1, pady=(10, 20), padx=10, sticky="e")
 
     # Crear marco desplazable para la tabla
     scroll_frame = ctk.CTkScrollableFrame(frame_derecha)
-    scroll_frame.grid(row=1, column=0, sticky="nswe", padx=20, pady=10)
+    scroll_frame.grid(row=1, column=0, columnspan=2, sticky="nswe", padx=20, pady=10)
     scroll_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
     # Encabezados de la tabla
-    encabezados = ["ID", "Hora", "Paciente", "Motivo"]
+    encabezados = ["ID", "Hora", "Paciente", "Historia Clinica"]
     for idx, encabezado in enumerate(encabezados):
         label_encabezado = ctk.CTkLabel(scroll_frame, text=encabezado, font=("Arial", 14, "bold"))
         label_encabezado.grid(row=0, column=idx, padx=10, pady=10, sticky="nsew")
 
     # Obtener citas desde la base de datos
     citas = obtener_citas()
+
+    if not mostrar_todas_citas:
+        citas = [cita for cita in citas if cita.get("seleccionada", False)]
 
     # Filas de la tabla
     for row_idx, cita in enumerate(citas, start=1):
@@ -418,8 +436,16 @@ def mostrar_mensaje_inicial():
         label_paciente.grid(row=row_idx, column=2, padx=10, pady=5, sticky="nsew")
 
         # Motivo
-        label_motivo = ctk.CTkLabel(scroll_frame, text=cita["Motivo"], font=("Arial", 12))
+        label_motivo = ctk.CTkLabel(scroll_frame, text=cita["Historia Clinica"], font=("Arial", 12))
         label_motivo.grid(row=row_idx, column=3, padx=10, pady=5, sticky="nsew")
+
+        # Checkbox para marcar como seleccionada
+        def toggle_seleccion(cita=cita):
+            cita["seleccionada"] = not cita.get("seleccionada", False)
+
+        check_var = ctk.BooleanVar(value=cita.get("seleccionada", False))
+        check_btn = ctk.CTkCheckBox(scroll_frame, variable=check_var, command=toggle_seleccion)
+        check_btn.grid(row=row_idx, column=4, padx=10, pady=5, sticky="nsew")
 
 # Ajusta el encabezado y las columnas para incluir "ID" en la vista de citas.
 mostrar_mensaje_inicial()
@@ -472,11 +498,12 @@ def mostrar_crear_cita():
         if paciente:
             entry_nombre.configure(state="normal")
             entry_nombre.delete(0, "end")
-            entry_nombre.insert(0, paciente["Nombre Completo"])
+            entry_nombre.insert(0, paciente["nombre_completo"])  # Cambiado a "nombre_completo"
             entry_nombre.configure(state="disabled")
         else:
             mensaje_error = ctk.CTkLabel(frame_derecha, text="Paciente no encontrado.", font=("Arial", 14), fg_color="red")
             mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
+
 
     btn_buscar = ctk.CTkButton(frame_derecha, text="Buscar", font=("Arial", 14), command=buscar_paciente_dni)
     btn_buscar.grid(row=1, column=2, padx=10, pady=10)
@@ -760,22 +787,6 @@ def mostrar_informacion_paciente(paciente, editable=False):
             mensaje.grid(row=len(campos) + 2, column=0, columnspan=2, pady=10)
             logger.error(f"Error en guardar_cambios:{e}")
 
-    def ir_a_crear_cita():
-        """
-        Navega a la vista de crear cita con el paciente preseleccionado.
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
-
-        logger.debug("Entre en ir_a_crear_cita")
-
-        mostrar_crear_cita()
-        pacientes_var.set(paciente["nombre_completo"])
-
     def eliminar_paciente(paciente):
         """
         Elimina al paciente de la base de datos.
@@ -1034,7 +1045,7 @@ def mostrar_citas():
         entry_nueva_fecha = ctk.CTkEntry(frame_derecha)
         entry_nueva_fecha.grid(row=2, column=1, padx=20, pady=10, sticky="w")
 
-        label_nuevo_motivo = ctk.CTkLabel(frame_derecha, text="Nuevo Motivo:", font=("Arial", 14))
+        label_nuevo_motivo = ctk.CTkLabel(frame_derecha, text="Historia Clinica:", font=("Arial", 14))
         label_nuevo_motivo.grid(row=3, column=0, padx=20, pady=10, sticky="e")
 
         entry_nuevo_motivo = ctk.CTkEntry(frame_derecha)

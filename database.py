@@ -144,27 +144,41 @@ def eliminar_paciente(id_paciente):
     conexion.close()
 
 def buscar_paciente_por_dni(dni):
-    conexion = conectar()
+    conexion = conectar()  # Función para conectar a la base de datos
     if conexion:
         try:
             cursor = conexion.cursor()
+            # Asegúrate de que las columnas seleccionadas existen en la tabla
             cursor.execute("SELECT * FROM Paciente WHERE numero_identificacion = ?", (dni,))
             resultado = cursor.fetchone()
+
             if resultado:
-                # Convertir los datos en un diccionario para facilitar el uso
+                # Mapeo de las columnas según el orden en la base de datos
                 campos = [
                     "nombre_completo", "fecha_nacimiento", "genero", "numero_identificacion", 
                     "telefono", "correo_electronico", "direccion", "tipo_sangre", 
                     "alergias", "condiciones_medicas_preexistentes", "medicamentos_actuales", 
                     "nombre_contacto_emergencia", "telefono_emergencia", "relacion_paciente"
                 ]
+                
+                # Asegúrate de que el número de columnas coincida con los campos
+                if len(campos) != len(resultado):
+                    print("Error: Los campos del diccionario no coinciden con las columnas de la tabla.")
+                    print(f"Datos retornados: {resultado}")
+                    return None
+
+                # Crear el diccionario mapeado
                 return dict(zip(campos, resultado))
+
+            # Si no se encuentra el paciente
+            print(f"No se encontró el paciente con DNI: {dni}")
             return None
         except sqlite3.Error as e:
             print(f"Error al buscar paciente: {e}")
             return None
         finally:
             cerrar_conexion(conexion)
+
 
 # Crear una nueva cita
 def agregar_cita(datos_cita):
@@ -303,3 +317,4 @@ def obtener_numero_identificacion_por_cita(id_cita):
         return resultado[0] if resultado else None
     finally:
         cerrar_conexion(conexion)
+ 
