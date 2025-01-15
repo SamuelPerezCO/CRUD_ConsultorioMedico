@@ -437,7 +437,7 @@ def mostrar_mensaje_inicial():
         label_paciente.grid(row=row_idx, column=2, padx=10, pady=5, sticky="nsew")
 
         # Motivo
-        label_motivo = ctk.CTkLabel(scroll_frame, text=cita["Historia Clinica"], font=("Arial", 12))
+        label_motivo = ctk.CTkLabel(scroll_frame, text=cita["Motivo"], font=("Arial", 12))
         label_motivo.grid(row=row_idx, column=3, padx=10, pady=5, sticky="nsew")
 
         # Checkbox para marcar como seleccionada
@@ -445,7 +445,7 @@ def mostrar_mensaje_inicial():
             cita["seleccionada"] = not cita.get("seleccionada", False)
 
         check_var = ctk.BooleanVar(value=cita.get("seleccionada", False))
-        check_btn = ctk.CTkCheckBox(scroll_frame, variable=check_var, command=toggle_seleccion)
+        check_btn = ctk.CTkCheckBox(scroll_frame, variable=check_var, command=toggle_seleccion , text="Seleccionar")
         check_btn.grid(row=row_idx, column=4, padx=10, pady=5, sticky="nsew")
 
 # Ajusta el encabezado y las columnas para incluir "ID" en la vista de citas.
