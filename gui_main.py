@@ -450,86 +450,85 @@ def mostrar_crear_cita():
     titulo_form = ctk.CTkLabel(frame_derecha, text="Crear Cita", font=("Arial", 20, "bold"))
     titulo_form.grid(row=0, column=0, columnspan=2, pady=20)
 
-    # Campos del formulario
-    # Seleccionar Paciente
+    # Campo para ingresar DNI
+    label_dni = ctk.CTkLabel(frame_derecha, text="DNI del Paciente:", font=("Arial", 14), anchor="w")
+    label_dni.grid(row=1, column=0, padx=20, pady=10, sticky="e")
+
+    entry_dni = ctk.CTkEntry(frame_derecha)
+    entry_dni.grid(row=1, column=1, padx=20, pady=10, sticky="w")
+
+    # Información del paciente
     label_paciente = ctk.CTkLabel(frame_derecha, text="Paciente:", font=("Arial", 14), anchor="w")
-    label_paciente.grid(row=1, column=0, padx=20, pady=10, sticky="e")
+    label_paciente.grid(row=2, column=0, padx=20, pady=10, sticky="e")
 
-    pacientes_var = ctk.StringVar(value="Seleccionar paciente")
-    pacientes_nombres = [p["Nombre Completo"] for p in pacientes]
-    menu_pacientes = ctk.CTkOptionMenu(frame_derecha, values=pacientes_nombres, variable=pacientes_var)
-    menu_pacientes.grid(row=1, column=1, padx=20, pady=10, sticky="w")
+    entry_paciente = ctk.CTkLabel(frame_derecha, text="", font=("Arial", 14), anchor="w")
+    entry_paciente.grid(row=2, column=1, padx=20, pady=10, sticky="w")
 
-    # Ingresar Hora
+    # Botón para buscar paciente
+    def buscar_paciente_por_dni_gui():
+        dni = entry_dni.get().strip()
+        if not dni:
+            mensaje_error = ctk.CTkLabel(frame_derecha, text="Por favor, ingrese un DNI válido.", font=("Arial", 14), fg_color="red")
+            mensaje_error.grid(row=6, column=0, columnspan=2, pady=10)
+            return
+
+        paciente = buscar_paciente_por_dni(dni)
+        if paciente:
+            entry_paciente.configure(text=paciente["nombre_completo"])
+        else:
+            entry_paciente.configure(text="Paciente no encontrado")
+
+    btn_buscar = ctk.CTkButton(frame_derecha, text="Buscar", font=("Arial", 14), command=buscar_paciente_por_dni_gui)
+    btn_buscar.grid(row=1, column=2, padx=10, pady=10)
+
+    # Ingresar Fecha y Hora
     label_hora = ctk.CTkLabel(frame_derecha, text="Fecha y Hora (YYYY-MM-DD HH:MM):", font=("Arial", 14), anchor="w")
-    label_hora.grid(row=2, column=0, padx=20, pady=10, sticky="e")
+    label_hora.grid(row=3, column=0, padx=20, pady=10, sticky="e")
 
     entry_hora = ctk.CTkEntry(frame_derecha)
-    entry_hora.grid(row=2, column=1, padx=20, pady=10, sticky="w")
+    entry_hora.grid(row=3, column=1, padx=20, pady=10, sticky="w")
 
-    # Motivo de la cita
-    label_motivo = ctk.CTkLabel(frame_derecha, text="Motivo:", font=("Arial", 14), anchor="w")
-    label_motivo.grid(row=3, column=0, padx=20, pady=10, sticky="e")
+    # Historial Clínico
+    label_historial = ctk.CTkLabel(frame_derecha, text="Historial Clínico:", font=("Arial", 14), anchor="w")
+    label_historial.grid(row=4, column=0, padx=20, pady=10, sticky="e")
 
-    entry_motivo = ctk.CTkEntry(frame_derecha)
-    entry_motivo.grid(row=3, column=1, padx=20, pady=10, sticky="w")
+    entry_historial = ctk.CTkTextbox(frame_derecha, font=("Arial", 14), height=200, width=400, wrap="word")
+    entry_historial.grid(row=4, column=1, padx=20, pady=10, sticky="w")
 
     # Botón para guardar la cita
     def guardar_cita():
         """
-        Valida y guarda los datos de la cita en la base de datos.
-
-        Verifica que los campos requeridos estén completos y selecciona al paciente
-        correspondiente. Si la validación es exitosa, la cita se guarda; de lo contrario,
-        se muestra un mensaje de error.
-
-        Args:
-            None
-
-        Returns:
-            None
-
-        Raises:
-            Exception: Si ocurre un error al guardar la cita en la base de datos.
+        Guarda la cita validando que el paciente haya sido buscado y encontrado.
         """
 
-        logger.debug("Entre en guardar_cita")
-
-        paciente_seleccionado = pacientes_var.get()
+        dni = entry_dni.get().strip()
         fecha_hora = entry_hora.get().strip()
-        motivo = entry_motivo.get().strip()
+        motivo = entry_historial.get("1.0", "end-1c").strip()
 
-        if paciente_seleccionado == "Seleccionar paciente" or not fecha_hora or not motivo:
+        if not dni or not fecha_hora or not motivo:
             mensaje_error = ctk.CTkLabel(frame_derecha, text="Por favor, complete todos los campos.", font=("Arial", 14), fg_color="red")
-            mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
-            logger.error("No se completaron todos los campos")
+            mensaje_error.grid(row=6, column=0, columnspan=2, pady=10)
             return
 
-        # Obtener el número de identificación del paciente seleccionado
-        numero_identificacion = next(
-            (p["DNI"] for p in pacientes if p["Nombre Completo"] == paciente_seleccionado), None
-        )
-
-        if numero_identificacion:
-            try:
-                # Guardar cita en la base de datos
-                agregar_cita(numero_identificacion, fecha_hora, motivo)
-                mostrar_mensaje_inicial()  # Regresar a la lista de citas
-            except Exception as e:
-                mensaje_error = ctk.CTkLabel(frame_derecha, text=f"Error: {e}", font=("Arial", 14), fg_color="red")
-                mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
-                logger.error(f"Error en guardar_cita: {e}")
-        else:
+        paciente = buscar_paciente_por_dni(dni)
+        if not paciente:
             mensaje_error = ctk.CTkLabel(frame_derecha, text="Paciente no encontrado.", font=("Arial", 14), fg_color="red")
-            mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
-            logger.error("Paciente no encontrado")
+            mensaje_error.grid(row=6, column=0, columnspan=2, pady=10)
+            return
+
+        try:
+            agregar_cita(dni, fecha_hora, motivo)
+            mostrar_mensaje_inicial()
+        except Exception as e:
+            mensaje_error = ctk.CTkLabel(frame_derecha, text=f"Error: {e}", font=("Arial", 14), fg_color="red")
+            mensaje_error.grid(row=6, column=0, columnspan=2, pady=10)
 
     btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cita", font=("Arial", 14), command=guardar_cita)
-    btn_guardar.grid(row=4, column=0, columnspan=2, pady=20)
+    btn_guardar.grid(row=5, column=0, columnspan=2, pady=20)
 
     # Botón para volver al menú principal
     btn_volver = ctk.CTkButton(frame_derecha, text="Volver", font=("Arial", 14), command=mostrar_mensaje_inicial)
-    btn_volver.grid(row=5, column=0, columnspan=2, pady=10)
+    btn_volver.grid(row=6, column=0, columnspan=2, pady=10)
 
 # Función para mostrar el formulario de búsqueda (centrado)
 def mostrar_buscar_paciente():
@@ -1072,28 +1071,19 @@ def mostrar_citas():
         label_nuevo_motivo = ctk.CTkLabel(frame_derecha, text="Nuevo Motivo:", font=("Arial", 14))
         label_nuevo_motivo.grid(row=3, column=0, padx=20, pady=10, sticky="e")
 
-        entry_nuevo_motivo = ctk.CTkEntry(frame_derecha)
+        entry_nuevo_motivo = ctk.CTkTextbox(frame_derecha, font=("Arial", 14), height=200, width=400, wrap="word")
         entry_nuevo_motivo.grid(row=3, column=1, padx=20, pady=10, sticky="w")
 
         def guardar_actualizacion():
             """
             Guarda los cambios realizados en una cita existente en la base de datos.
-
-            Args:
-                None
-
-            Returns:
-                None
-
-            Raises:
-                ValueError: Si no se encuentra el número de identificación para la cita.
             """
 
             logger.debug("Entre en guardar_actualizacion")
 
             id_cita = entry_id_cita.get().strip()
             nueva_fecha = entry_nueva_fecha.get().strip()
-            nuevo_motivo = entry_nuevo_motivo.get().strip()
+            nuevo_motivo = entry_nuevo_motivo.get("1.0", "end-1c").strip()
 
             if not id_cita or not nueva_fecha or not nuevo_motivo:
                 mensaje_error = ctk.CTkLabel(frame_derecha, text="Por favor, complete todos los campos.", font=("Arial", 14), fg_color="red")
@@ -1110,7 +1100,6 @@ def mostrar_citas():
             except Exception as e:
                 mensaje_error = ctk.CTkLabel(frame_derecha, text=f"Error: {e}", font=("Arial", 14), fg_color="red")
                 mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
-                logger.error(f"Error en guardar_actualizacion {e}")
 
         btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cambios", command=guardar_actualizacion)
         btn_guardar.grid(row=4, column=0, columnspan=2, pady=20)
