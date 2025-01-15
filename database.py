@@ -80,8 +80,8 @@ def agregar_paciente(datos_paciente):
                 INSERT INTO Paciente (
                     nombre_completo, fecha_nacimiento, genero, numero_identificacion, telefono,
                     correo_electronico, direccion, tipo_sangre, alergias, condiciones_medicas_preexistentes,
-                    medicamentos_actuales, nombre_contacto_emergencia, telefono_emergencia, relacion_paciente, historia_clinica
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    medicamentos_actuales, nombre_contacto_emergencia, telefono_emergencia, relacion_paciente
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, datos_paciente[:15])  # Ajustamos la longitud de los datos a 15 valores
             conexion.commit()
             print("Paciente agregado exitosamente.")
@@ -114,7 +114,7 @@ def actualizar_paciente(dni, nuevos_datos):
                     nombre_completo = ?, fecha_nacimiento = ?, genero = ?, numero_identificacion = ?, telefono = ?,
                     correo_electronico = ?, direccion = ?, tipo_sangre = ?, alergias = ?, 
                     condiciones_medicas_preexistentes = ?, medicamentos_actuales = ?, 
-                    nombre_contacto_emergencia = ?, telefono_emergencia = ?, relacion_paciente = ?, historia_clinica = ?
+                    nombre_contacto_emergencia = ?, telefono_emergencia = ?, relacion_paciente = ?
                 WHERE numero_identificacion = ?
             """, (*nuevos_datos, dni))
             conexion.commit()
@@ -156,7 +156,7 @@ def buscar_paciente_por_dni(dni):
                     "nombre_completo", "fecha_nacimiento", "genero", "numero_identificacion", 
                     "telefono", "correo_electronico", "direccion", "tipo_sangre", 
                     "alergias", "condiciones_medicas_preexistentes", "medicamentos_actuales", 
-                    "nombre_contacto_emergencia", "telefono_emergencia", "relacion_paciente","historia_clinica"
+                    "nombre_contacto_emergencia", "telefono_emergencia", "relacion_paciente"
                 ]
                 return dict(zip(campos, resultado))
             return None
