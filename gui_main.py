@@ -9,6 +9,8 @@ cerrar_log()
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
 
+pacientes = []
+
 # Crear ventana principal
 app = ctk.CTk()
 app.title("Consultorio Médico")
@@ -436,6 +438,8 @@ def mostrar_crear_cita():
     Returns:
         None
     """
+
+    global pacientes
 
     logger.debug("Entre en mostrar_crear_cita")
 
