@@ -303,3 +303,42 @@ def obtener_numero_identificacion_por_cita(id_cita):
         return resultado[0] if resultado else None
     finally:
         cerrar_conexion(conexion)
+
+
+from datetime import datetime
+
+def obtener_citas_hoy():
+    """
+    Obtiene las citas correspondientes al día de hoy desde la base de datos.
+
+    Returns:
+        list: Lista de diccionarios con las citas del día de hoy.
+    """
+    conexion = conectar()
+    try:
+        cursor = conexion.cursor()
+        hoy = datetime.now().strftime("%Y-%m-%d")  # Formato YYYY-MM-DD
+        cursor.execute(
+            """
+            SELECT Cita.id_cita, Cita.fecha_hora, Paciente.nombre_completo, Cita.motivo
+            FROM Cita
+            LEFT JOIN Paciente ON Cita.numero_identificacion = Paciente.numero_identificacion
+            WHERE DATE(Cita.fecha_hora) = ?
+            """,
+            (hoy,)
+        )
+        resultados = cursor.fetchall()
+        return [
+            {
+                "ID": r[0],
+                "Hora": r[1],
+                "Paciente": r[2] if r[2] else "Paciente no registrado",
+                "Motivo": r[3]
+            }
+            for r in resultados
+        ]
+    except sqlite3.Error as e:
+        print(f"Error al obtener citas del día de hoy: {e}")
+        return []
+    finally:
+        cerrar_conexion(conexion)
