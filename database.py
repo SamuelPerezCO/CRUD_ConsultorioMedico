@@ -298,7 +298,9 @@ def obtener_citas_por_paciente(numero_identificacion):
         try:
             cursor = conexion.cursor()
             cursor.execute("""
-                SELECT * FROM Cita WHERE numero_identificacion = ?
+                SELECT fecha_hora, motivo 
+                FROM Cita 
+                WHERE numero_identificacion = ?
             """, (numero_identificacion,))
             resultados = cursor.fetchall()
             return resultados
@@ -307,6 +309,7 @@ def obtener_citas_por_paciente(numero_identificacion):
             return []
         finally:
             cerrar_conexion(conexion)
+
 
 def obtener_numero_identificacion_por_cita(id_cita):
     conexion = conectar()
