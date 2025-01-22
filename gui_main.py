@@ -1041,7 +1041,7 @@ def mostrar_citas():
         label_historia_clinica = ctk.CTkLabel(frame_derecha, text="Historia Clínica:", font=("Arial", 14))
         label_historia_clinica.grid(row=3, column=0, padx=20, pady=10, sticky="e")
 
-        text_historia_clinica = ctk.CTkTextbox(frame_derecha, font=("Arial", 14), height=100, width=300, wrap="word")
+        text_historia_clinica = ctk.CTkTextbox(frame_derecha, font=("Arial", 14), height=200, width=500, wrap="word")
         text_historia_clinica.grid(row=3, column=1, padx=20, pady=10, sticky="w")
 
         def guardar_actualizacion():
@@ -1083,6 +1083,7 @@ def mostrar_citas():
 
         btn_guardar = ctk.CTkButton(frame_derecha, text="Guardar Cambios", command=guardar_actualizacion)
         btn_guardar.grid(row=4, column=0, columnspan=2, pady=20)
+
 
     def eliminar_cita_button():
         """
