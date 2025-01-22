@@ -1038,11 +1038,11 @@ def mostrar_citas():
         entry_nueva_fecha = ctk.CTkEntry(frame_derecha)
         entry_nueva_fecha.grid(row=2, column=1, padx=20, pady=10, sticky="w")
 
-        label_nuevo_motivo = ctk.CTkLabel(frame_derecha, text="Historia Clinica:", font=("Arial", 14))
-        label_nuevo_motivo.grid(row=3, column=0, padx=20, pady=10, sticky="e")
+        label_historia_clinica = ctk.CTkLabel(frame_derecha, text="Historia Clínica:", font=("Arial", 14))
+        label_historia_clinica.grid(row=3, column=0, padx=20, pady=10, sticky="e")
 
-        entry_nuevo_motivo = ctk.CTkEntry(frame_derecha)
-        entry_nuevo_motivo.grid(row=3, column=1, padx=20, pady=10, sticky="w")
+        text_historia_clinica = ctk.CTkTextbox(frame_derecha, font=("Arial", 14), height=100, width=300, wrap="word")
+        text_historia_clinica.grid(row=3, column=1, padx=20, pady=10, sticky="w")
 
         def guardar_actualizacion():
             """
@@ -1062,9 +1062,9 @@ def mostrar_citas():
 
             id_cita = entry_id_cita.get().strip()
             nueva_fecha = entry_nueva_fecha.get().strip()
-            nuevo_motivo = entry_nuevo_motivo.get().strip()
+            nueva_historia = text_historia_clinica.get("1.0", "end-1c").strip()
 
-            if not id_cita or not nueva_fecha or not nuevo_motivo:
+            if not id_cita or not nueva_fecha or not nueva_historia:
                 mensaje_error = ctk.CTkLabel(frame_derecha, text="Por favor, complete todos los campos.", font=("Arial", 14), fg_color="red")
                 mensaje_error.grid(row=5, column=0, columnspan=2, pady=10)
                 return
@@ -1074,7 +1074,7 @@ def mostrar_citas():
                 if not numero_identificacion:
                     raise ValueError("No se encontró el número de identificación para la cita.")
 
-                actualizar_cita(id_cita, [numero_identificacion, nueva_fecha, nuevo_motivo])
+                actualizar_cita(id_cita, [numero_identificacion, nueva_fecha, nueva_historia])
                 mostrar_citas()
             except Exception as e:
                 mensaje_error = ctk.CTkLabel(frame_derecha, text=f"Error: {e}", font=("Arial", 14), fg_color="red")
